@@ -1,0 +1,67 @@
+import { useState } from "react";
+import AnoAI from "@/components/ui/animated-shader-background";
+import ProfileCard from "@/components/profile/ProfileCard";
+import ImpactCard from "@/components/profile/ImpactCard";
+import InfoCard from "@/components/profile/InfoCard";
+import PreferencesCard from "@/components/profile/PreferencesCard";
+import SettingsList from "@/components/profile/SettingsList";
+
+export default function ProfilePage() {
+  const [darkMode, setDarkMode] = useState(true);
+  const [notifications, setNotifications] = useState(true);
+
+  return (
+    <div className="flex h-screen w-screen relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 z-0">
+        <AnoAI />
+      </div>
+
+      {/* Content Layer */}
+      <div className="relative z-10 flex w-full h-full">
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col backdrop-blur-sm bg-gray-950/60 overflow-y-auto">
+          <div className="max-w-5xl mx-auto w-full px-4 md:px-8 py-12">
+            {/* Header */}
+            <div className="mb-12">
+              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2">
+                Profile
+              </h1>
+              <p className="text-gray-400 text-lg">
+                Manage your account and preferences
+              </p>
+            </div>
+
+            {/* Main Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column */}
+              <div className="lg:col-span-1 space-y-8">
+                <ProfileCard />
+                <ImpactCard />
+              </div>
+
+              {/* Right Column */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Info Cards */}
+                <div>
+                  <InfoCard />
+                </div>
+
+                {/* Preferences */}
+                <PreferencesCard
+                  darkMode={darkMode}
+                  setDarkMode={setDarkMode}
+                  notifications={notifications}
+                  setNotifications={setNotifications}
+                />
+
+                {/* Settings */}
+                <SettingsList />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
