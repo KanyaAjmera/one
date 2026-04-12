@@ -23,9 +23,13 @@ import GuessCaptcha from "./pages/games/GuessCaptcha";
 import Cricket from "./pages/games/Cricket";
 import BlankPage from "./pages/BlankPage";
 import VisualChatPage from "./pages/VisualChatPage";
+import AuthSuccessPage from "./pages/AuthSuccessPage";
 import { User, Moon, Sun } from "lucide-react";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { GradientBackground } from "./components/ui/noisy-gradient-backgrounds";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AuthModal } from "./components/AuthModal";
+import { useState } from "react";
 
 function GlobalBackground() {
   const { isLightMode } = useTheme();
@@ -49,9 +53,18 @@ function GlobalBackground() {
   );
 }
 
-function GlobalProfileButton() {
+function GlobalProfileButton({ onOpenAuth }: { onOpenAuth: () => void }) {
   const navigate = useNavigate();
   const { isLightMode, toggleTheme } = useTheme();
+  const { user } = useAuth();
+
+  const handleProfileClick = () => {
+    if (user) {
+      navigate("/profile");
+    } else {
+      onOpenAuth();
+    }
+  };
 
   return (
     <div className="fixed top-6 right-6 z-50 flex gap-2">
@@ -63,7 +76,7 @@ function GlobalProfileButton() {
         {isLightMode ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
       </div>
       <div
-        onClick={() => navigate("/profile")}
+        onClick={handleProfileClick}
         className={`cursor-pointer hover:scale-110 transition-all duration-300 p-3 rounded-full border shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center justify-center ${isLightMode ? 'bg-white/90 border-gray-200 shadow-md text-gray-800' : 'bg-black/40 backdrop-blur-md border-white/20 text-white'}`}
         title="Profile"
       >
@@ -74,14 +87,18 @@ function GlobalProfileButton() {
 }
 
 function AppContent() {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   return (
     <div className="w-full min-h-screen relative">
       <GlobalBackground />
-      <GlobalProfileButton />
+      <GlobalProfileButton onOpenAuth={() => setIsAuthModalOpen(true)} />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
       <div className="relative z-10 w-full min-h-screen">
         <Routes>
           <Route path="/" element={<GridScanPage />} />
+          <Route path="/auth-success" element={<AuthSuccessPage />} />
           <Route path="/demo" element={<Demo />} />
           <Route path="/blank" element={<BlankPage />} />
           <Route path="/visual-chat" element={<VisualChatPage />} />
@@ -110,9 +127,11 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
