@@ -79,7 +79,7 @@ export default function SnakeLadder() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-black text-white p-4 md:p-8 relative flex flex-col">
+    <div className="w-full min-h-screen text-foreground p-4 md:p-8 relative flex flex-col">
       <div className="fixed inset-0 z-0"><AnoAI /></div>
       <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col lg:flex-row gap-8 flex-1">
         

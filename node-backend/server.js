@@ -7,6 +7,7 @@ import passport from './config/passport.js';
 import connectDB from './config/db.js';
 import authRoutes from './routes/auth.js';
 import generateRoutes from './routes/generateRoutes.js';
+import gameRoutes from './routes/gameRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -44,6 +45,7 @@ app.use(passport.session());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/generate', generateRoutes);
+app.use('/api/game', gameRoutes);
 
 // Static uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

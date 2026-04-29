@@ -100,7 +100,7 @@ export default function VisualChatPage() {
 
   if (page === "loading") {
     return (
-      <div className="flex h-screen w-screen relative overflow-hidden text-white flex-col items-center justify-center gap-4">
+      <div className="flex h-screen w-screen relative overflow-hidden text-foreground flex-col items-center justify-center gap-4">
         <div className="fixed inset-0 z-0">
           <AnoAI />
         </div>
@@ -124,7 +124,7 @@ export default function VisualChatPage() {
 
   // Chat View
   return (
-    <div className="flex h-screen w-screen relative overflow-hidden text-white font-sans">
+    <div className="flex h-screen w-screen relative overflow-hidden text-foreground font-sans">
       {/* Animated Background */}
       <div className="fixed inset-0 z-0">
         <AnoAI />

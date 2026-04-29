@@ -191,7 +191,7 @@ export default function CarRacing() {
   }, [isPlaying, isGameOver, gameLoop]);
 
   return (
-    <div className="w-full min-h-screen bg-black text-white p-4 md:p-8 relative flex flex-col">
+    <div className="w-full min-h-screen text-foreground p-4 md:p-8 relative flex flex-col">
       <div className="fixed inset-0 z-0"><AnoAI /></div>
       <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col flex-1">
         <header className="flex items-center justify-between mb-8">

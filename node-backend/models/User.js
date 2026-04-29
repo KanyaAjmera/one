@@ -24,6 +24,18 @@ const userSchema = new mongoose.Schema({
         unique: true,
         sparse: true,
     },
+    currentStreak: {
+        type: Number,
+        default: 0,
+    },
+    lastPlayedDate: {
+        type: String,
+        default: null,
+    },
+    totalGamesPlayed: {
+        type: Number,
+        default: 0,
+    },
 }, {
     timestamps: true, // Automatically adds createdAt and updatedAt
 });
