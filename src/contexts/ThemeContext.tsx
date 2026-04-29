@@ -18,6 +18,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     localStorage.setItem("theme-mode", mode);
+    if (mode === "default") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
   }, [mode]);
 
   const toggleTheme = () => {

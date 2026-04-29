@@ -1,0 +1,2 @@
+﻿src/pages/AskPage.tsx(1,20): error TS6133: 'useEffect' is declared but its value is never read.
+src/pages/AskPage.tsx(5,1): error TS6133: 'AnoAI' is declared but its value is never read.

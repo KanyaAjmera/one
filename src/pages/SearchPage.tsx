@@ -104,7 +104,7 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden relative flex flex-col">
+    <div className="min-h-screen text-foreground font-sans overflow-x-hidden relative flex flex-col">
       {/* Background Aurora */}
       <div className="fixed inset-0 z-0">
         <AnoAI />

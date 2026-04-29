@@ -39,7 +39,7 @@ export default function ImageCreator() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-black text-white font-sans overflow-x-hidden relative flex flex-col">
+    <div className="w-full min-h-screen text-foreground font-sans overflow-x-hidden relative flex flex-col">
       <div className="fixed inset-0 z-0">
         <AnoAI />
       </div>

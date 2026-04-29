@@ -1,26 +1,26 @@
 import { Mail, Phone, MapPin, Calendar } from "lucide-react";
 
-export default function InfoCard() {
+export default function InfoCard({ user }: { user: any }) {
   const infoItems = [
     {
       icon: Mail,
       label: "Email Address",
-      value: "demo@example.com",
+      value: user?.email || "Loading...",
     },
     {
       icon: Phone,
       label: "Phone Number",
-      value: "+1 (555) 000-0000",
+      value: "Private",
     },
     {
       icon: MapPin,
       label: "Location",
-      value: "San Francisco, CA",
+      value: "Earth",
     },
     {
       icon: Calendar,
       label: "Member Since",
-      value: "January 2024",
+      value: "Recently",
     },
   ];
 
@@ -41,7 +41,7 @@ export default function InfoCard() {
                 {item.label}
               </p>
             </div>
-            <p className="text-lg font-semibold text-white">{item.value}</p>
+            <p className="text-lg font-semibold text-white break-words">{item.value}</p>
           </div>
         );
       })}

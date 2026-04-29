@@ -1,10 +1,47 @@
 import { useState } from "react";
-import { Lock, User, ArrowRight } from "lucide-react";
+import { Lock, User, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import api from "../../utils/api";
 
 export default function AuthCard() {
   const [isLogin, setIsLogin] = useState(true);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
   const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        const res = await api.post('/login', { email, password });
+        if (res.data.success) {
+          login(res.data.token, res.data.user);
+          navigate('/demo');
+          window.scrollTo(0, 0);
+        }
+      } else {
+        const res = await api.post('/signup', { name, email, password });
+        if (res.data.success) {
+          login(res.data.token, res.data.user);
+          navigate('/demo');
+          window.scrollTo(0, 0);
+        }
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="relative w-full max-w-md">
@@ -26,14 +63,17 @@ export default function AuthCard() {
           </p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/20 border border-red-500 text-red-100 text-sm text-center">
+            {error}
+          </div>
+        )}
+
         {/* Forms */}
         <form 
           className="space-y-6" 
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate('/demo');
-            window.scrollTo(0, 0);
-          }}
+          onSubmit={handleSubmit}
         >
           {!isLogin && (
             <div className="relative group">
@@ -42,6 +82,9 @@ export default function AuthCard() {
               </div>
               <input
                 type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full bg-transparent border-0 border-b-2 border-white/30 py-3 pl-11 pr-4 text-[15px] text-white focus:outline-none focus:border-white transition-colors placeholder:text-gray-300"
                 placeholder="Username"
               />
@@ -54,6 +97,9 @@ export default function AuthCard() {
             </div>
             <input
               type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-transparent border-0 border-b-2 border-white/30 py-3 pl-11 pr-4 text-[15px] text-white focus:outline-none focus:border-white transition-colors placeholder:text-gray-300"
               placeholder="Email Address"
             />
@@ -65,6 +111,9 @@ export default function AuthCard() {
             </div>
             <input
               type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-transparent border-0 border-b-2 border-white/30 py-3 pl-11 pr-4 text-[15px] text-white focus:outline-none focus:border-white transition-colors placeholder:text-gray-300"
               placeholder="Password"
             />
@@ -76,9 +125,19 @@ export default function AuthCard() {
             </a>
           </div>
 
-          <button className="w-full bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-lg rounded-xl py-4 mt-8 transition-all flex items-center justify-center gap-3 shadow-lg">
-            <span>{isLogin ? "Login" : "Sign Up"}</span>
-            <ArrowRight className="h-5 w-5" />
+          <button 
+            type="submit"
+            disabled={loading}
+            className={`w-full bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-lg rounded-xl py-4 mt-8 transition-all flex items-center justify-center gap-3 shadow-lg ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+          >
+            {loading ? (
+              <Loader2 className="animate-spin h-5 w-5" />
+            ) : (
+              <>
+                <span>{isLogin ? "Login" : "Sign Up"}</span>
+                <ArrowRight className="h-5 w-5" />
+              </>
+            )}
           </button>
         </form>
 
@@ -93,8 +152,7 @@ export default function AuthCard() {
         <button 
           onClick={(e) => {
             e.preventDefault();
-            navigate('/demo');
-            window.scrollTo(0, 0);
+            window.location.href = "http://localhost:5000/api/auth/google";
           }}
           className="w-full bg-[#e8e9ea] hover:bg-gray-300 text-[#303134] font-semibold text-[16px] rounded-xl py-3.5 transition-all flex items-center justify-center gap-3"
         >

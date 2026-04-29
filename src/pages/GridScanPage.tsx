@@ -5,9 +5,9 @@ import Hyperspeed from "../components/ui/Hyperspeed";
 
 export default function GridScanPage() {
   return (
-    <div className="w-full relative bg-black overflow-x-hidden min-h-screen">
+    <div className="w-full relative text-foreground overflow-x-hidden min-h-screen">
       {/* Hyperspeed Background - Fixed toViewport */}
-      <div className="fixed inset-0 w-full h-screen z-0 pointer-events-none">
+      <div className="fixed inset-0 w-full h-screen z-0 pointer-events-none mix-blend-screen">
         <Hyperspeed
           effectOptions={{
             onSpeedUp: () => {},

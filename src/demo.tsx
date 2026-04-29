@@ -8,7 +8,7 @@ export default function Demo() {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full bg-black text-white font-sans overflow-x-hidden min-h-screen">
+    <div className="w-full text-foreground font-sans overflow-x-hidden min-h-screen">
       {/* Main Content Scrollable Context */}
       <div className="relative z-10 w-full">
         {/* Fixed Background Layer */}
@@ -51,10 +51,10 @@ export default function Demo() {
               </>
             }
           >
-            <div className="w-full h-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+            <div className="w-full h-full overflow-y-auto scrollbar-thin flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 pb-12">
               {/* Create Card - Interactive */}
               <div
-                className="border border-white/[0.2] flex flex-col items-center justify-center w-full mx-auto p-4 relative h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:scale-[1.02] hover:shadow-xl"
+                className="border border-white/[0.2] flex flex-col items-center justify-center w-full mx-auto p-4 relative min-h-[300px] lg:h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:scale-[1.02] hover:shadow-xl"
                 onClick={() => navigate("/create")}
               >
                 <Icon className="absolute h-6 w-6 -top-3 -left-3 dark:text-white text-black" />
@@ -69,7 +69,7 @@ export default function Demo() {
 
               <Link
                 to="/ask"
-                className="border border-white/[0.2] flex flex-col items-start w-full mx-auto p-4 relative h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:scale-[1.02] hover:shadow-xl z-20"
+                className="border border-white/[0.2] flex flex-col items-center justify-center w-full mx-auto p-4 relative min-h-[300px] lg:h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:scale-[1.02] hover:shadow-xl z-20"
               >
                 <Icon className="absolute h-6 w-6 -top-3 -left-3 dark:text-white text-black" />
                 <Icon className="absolute h-6 w-6 -bottom-3 -left-3 dark:text-white text-black" />
@@ -82,7 +82,7 @@ export default function Demo() {
               </Link>
               <Link
                 to="/ai"
-                className="border border-white/[0.2] flex flex-col items-start w-full mx-auto p-4 relative h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:scale-[1.02] hover:shadow-xl z-20"
+                className="border border-white/[0.2] flex flex-col items-center justify-center w-full mx-auto p-4 relative min-h-[300px] lg:h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:scale-[1.02] hover:shadow-xl z-20"
               >
                 <Icon className="absolute h-6 w-6 -top-3 -left-3 dark:text-white text-black" />
                 <Icon className="absolute h-6 w-6 -bottom-3 -left-3 dark:text-white text-black" />
@@ -95,7 +95,7 @@ export default function Demo() {
               </Link>
               <Link
                 to="/games"
-                className="border border-white/[0.2] flex flex-col items-start w-full mx-auto p-4 relative h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:scale-[1.02] hover:shadow-xl z-20"
+                className="border border-white/[0.2] flex flex-col items-center justify-center w-full mx-auto p-4 relative min-h-[300px] lg:h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:scale-[1.02] hover:shadow-xl z-20"
               >
                 <Icon className="absolute h-6 w-6 -top-3 -left-3 dark:text-white text-black" />
                 <Icon className="absolute h-6 w-6 -bottom-3 -left-3 dark:text-white text-black" />
