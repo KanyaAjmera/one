@@ -1,0 +1,603 @@
+Crime: Murder
+Law: IPC
+Section: 302
+Category: Crimes Against Person
+Description: Intentional killing with premeditated intent
+Punishment: Death or life imprisonment
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Attempt to Murder
+Law: IPC
+Section: 307
+Category: Crimes Against Person
+Description: Attempt to cause death intentionally
+Punishment: Up to life imprisonment
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Culpable Homicide
+Law: IPC
+Section: 299
+Category: Crimes Against Person
+Description: Causing death without intention of murder
+Punishment: Varies
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Kidnapping
+Law: IPC
+Section: 363
+Category: Crimes Against Person
+Description: Taking person without consent
+Punishment: Up to 7 years
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Abduction
+Law: IPC
+Section: 362
+Category: Crimes Against Person
+Description: Forcefully taking someone
+Punishment: Varies
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Wrongful Restraint
+Law: IPC
+Section: 339
+Category: Crimes Against Person
+Description: Preventing movement
+Punishment: Up to 1 month
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Wrongful Confinement
+Law: IPC
+Section: 340
+Category: Crimes Against Person
+Description: Illegal confinement
+Punishment: Up to 1 year
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Assault
+Law: IPC
+Section: 351
+Category: Crimes Against Person
+Description: Threat or attempt of force
+Punishment: Up to 3 months
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Causing Hurt
+Law: IPC
+Section: 323
+Category: Crimes Against Person
+Description: Physical injury
+Punishment: Up to 1 year
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Grievous Hurt
+Law: IPC
+Section: 325
+Category: Crimes Against Person
+Description: Serious injury
+Punishment: Up to 7 years
+Bailable: No
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Acid Attack
+Law: IPC
+Section: 326A
+Category: Crimes Against Person
+Description: Attack using acid causing injury
+Punishment: 10 years to life
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Rape
+Law: IPC
+Section: 376
+Category: Crimes Against Women
+Description: Sexual assault without consent
+Punishment: 7 years to life
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Sexual Harassment
+Law: IPC
+Section: 354A
+Category: Crimes Against Women
+Description: Unwelcome sexual behavior
+Punishment: Up to 3 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Voyeurism
+Law: IPC
+Section: 354C
+Category: Crimes Against Women
+Description: Watching private acts
+Punishment: Up to 7 years
+Bailable: No
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Stalking
+Law: IPC
+Section: 354D
+Category: Crimes Against Women
+Description: Following repeatedly
+Punishment: Up to 3 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Cruelty by Husband
+Law: IPC
+Section: 498A
+Category: Domestic Violence
+Description: Abuse by spouse
+Punishment: Up to 3 years
+Bailable: No
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Theft
+Law: IPC
+Section: 378
+Category: Property Crime
+Description: Dishonest taking of property
+Punishment: Up to 3 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Robbery
+Law: IPC
+Section: 392
+Category: Property Crime
+Description: Theft using force
+Punishment: Up to 10 years
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Dacoity
+Law: IPC
+Section: 395
+Category: Property Crime
+Description: Robbery by 5+ persons
+Punishment: Life imprisonment
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Extortion
+Law: IPC
+Section: 384
+Category: Property Crime
+Description: Obtaining property by threat
+Punishment: Up to 3 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Criminal Breach of Trust
+Law: IPC
+Section: 406
+Category: Property Crime
+Description: Misuse of entrusted property
+Punishment: Up to 3 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Cheating
+Law: IPC
+Section: 420
+Category: Fraud
+Description: Dishonest inducement
+Punishment: Up to 7 years
+Bailable: No
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Forgery
+Law: IPC
+Section: 463
+Category: Fraud
+Description: Making false documents
+Punishment: Up to 2 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Using Forged Document
+Law: IPC
+Section: 471
+Category: Fraud
+Description: Using fake document
+Punishment: Same as forgery
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Defamation
+Law: IPC
+Section: 499
+Category: Reputation Crime
+Description: Harming reputation
+Punishment: Up to 2 years
+Bailable: Yes
+Cognizable: No
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Criminal Intimidation
+Law: IPC
+Section: 503
+Category: Public Order
+Description: Threatening harm
+Punishment: Up to 2 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Rioting
+Law: IPC
+Section: 147
+Category: Public Order
+Description: Violent unlawful assembly
+Punishment: Up to 2 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Unlawful Assembly
+Law: IPC
+Section: 141
+Category: Public Order
+Description: Group with illegal intent
+Punishment: Varies
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Public Nuisance
+Law: IPC
+Section: 268
+Category: Public Order
+Description: Disturbing public peace
+Punishment: Fine
+Bailable: Yes
+Cognizable: No
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Sedition
+Law: IPC
+Section: 124A
+Category: State Offence
+Description: Anti-state activities
+Punishment: Life imprisonment
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Waging War
+Law: IPC
+Section: 121
+Category: State Offence
+Description: War against state
+Punishment: Death or life
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Counterfeit Currency
+Law: IPC
+Section: 489A
+Category: Economic Crime
+Description: Fake currency production
+Punishment: Life imprisonment
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Using Fake Currency
+Law: IPC
+Section: 489B
+Category: Economic Crime
+Description: Using fake currency
+Punishment: Up to 10 years
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Bribery
+Law: Prevention of Corruption Act
+Section: 7
+Category: Corruption
+Description: Accepting illegal gratification
+Punishment: Up to 7 years
+Bailable: No
+Cognizable: Yes
+Triable By: Special Court
+--------------------------------------------------
+
+Crime: Money Laundering
+Law: PMLA
+Section: 3
+Category: Economic Crime
+Description: Concealing illegal money
+Punishment: Up to 7 years
+Bailable: No
+Cognizable: Yes
+Triable By: Special Court
+--------------------------------------------------
+
+Crime: Drug Possession
+Law: NDPS
+Section: 21
+Category: Drugs
+Description: Possession of narcotics
+Punishment: Varies
+Bailable: No
+Cognizable: Yes
+Triable By: Special Court
+--------------------------------------------------
+
+Crime: Drug Trafficking
+Law: NDPS
+Section: 27A
+Category: Drugs
+Description: Drug trade
+Punishment: Severe punishment
+Bailable: No
+Cognizable: Yes
+Triable By: Special Court
+--------------------------------------------------
+
+Crime: Rash Driving
+Law: IPC
+Section: 279
+Category: Traffic
+Description: Dangerous driving
+Punishment: Up to 6 months
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Death by Negligence
+Law: IPC
+Section: 304A
+Category: Traffic
+Description: Negligence causing death
+Punishment: Up to 2 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Drunk Driving
+Law: MV Act
+Section: 185
+Category: Traffic
+Description: Driving under alcohol
+Punishment: Fine/imprisonment
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: No License Driving
+Law: MV Act
+Section: 181
+Category: Traffic
+Description: Driving without license
+Punishment: Fine
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Hacking
+Law: IT Act
+Section: 66
+Category: Cyber Crime
+Description: Unauthorized access
+Punishment: Up to 3 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Identity Theft
+Law: IT Act
+Section: 66C
+Category: Cyber Crime
+Description: Using another identity
+Punishment: Up to 3 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Cyber Fraud
+Law: IT Act
+Section: 66D
+Category: Cyber Crime
+Description: Online cheating
+Punishment: Up to 3 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Obscene Content
+Law: IT Act
+Section: 67
+Category: Cyber Crime
+Description: Publishing obscene content
+Punishment: Up to 5 years
+Bailable: No
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Arson
+Law: IPC
+Section: 435
+Category: Property Crime
+Description: Setting fire to property
+Punishment: Up to 7 years
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: House Breaking
+Law: IPC
+Section: 445
+Category: Property Crime
+Description: Breaking into house
+Punishment: Varies
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Bigamy
+Law: IPC
+Section: 494
+Category: Family Crime
+Description: Marrying again during lifetime
+Punishment: Up to 7 years
+Bailable: Yes
+Cognizable: No
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Adulteration
+Law: IPC
+Section: 272
+Category: Public Health
+Description: Adulterating food
+Punishment: Up to 6 months
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Human Trafficking
+Law: IPC
+Section: 370
+Category: Crimes Against Person
+Description: Exploitation of persons
+Punishment: 7 years to life
+Bailable: No
+Cognizable: Yes
+Triable By: Sessions Court
+--------------------------------------------------
+
+Crime: Child Labour
+Law: CL Act
+Section: Various
+Category: Labour Law
+Description: Employing children
+Punishment: Penalty
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Animal Cruelty
+Law: PCA Act
+Section: 11
+Category: Animal Law
+Description: Cruelty to animals
+Punishment: Fine/imprisonment
+Bailable: Yes
+Cognizable: No
+Triable By: Magistrate
+--------------------------------------------------
+
+Crime: Environmental Pollution
+Law: EPA
+Section: 15
+Category: Environment
+Description: Pollution violation
+Punishment: Up to 5 years
+Bailable: No
+Cognizable: Yes
+Triable By: Court
+--------------------------------------------------
+
+Crime: Illegal Mining
+Law: Mines Act
+Section: Various
+Category: Economic Crime
+Description: Unauthorized mining
+Punishment: Varies
+Bailable: Yes
+Cognizable: Yes
+Triable By: Court
+--------------------------------------------------
+
+Crime: Cyber Stalking
+Law: IPC/IT
+Section: 354D
+Category: Cyber Crime
+Description: Online harassment
+Punishment: Up to 3 years
+Bailable: Yes
+Cognizable: Yes
+Triable By: Magistrate

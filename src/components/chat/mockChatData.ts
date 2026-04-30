@@ -138,8 +138,6 @@ export const welcomeSuggestions = [
 // Navigation menu items
 export const navMenuItems = [
   { id: "explore", label: "Explore", icon: "🔍" },
-  { id: "images", label: "Images", icon: "🖼️" },
-  { id: "apps", label: "Apps", icon: "⚙️" },
   { id: "research", label: "Deep Research", icon: "🔬" },
   { id: "codex", label: "Codex", icon: "💻" },
   { id: "gpts", label: "GPTs", icon: "🤖" },

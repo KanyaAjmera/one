@@ -1,0 +1,1427 @@
+[
+  {
+    "law": "IPC",
+    "section": "302",
+    "title": "Murder",
+    "category": "Crimes Against Person",
+    "description": "Intentional killing with premeditated intent",
+    "elements": [
+      "Intentional killing with premeditated intent"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Death or life imprisonment"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "murder",
+      "intentional",
+      "killing",
+      "with",
+      "premeditated",
+      "intent"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "307",
+    "title": "Attempt to Murder",
+    "category": "Crimes Against Person",
+    "description": "Attempt to cause death intentionally",
+    "elements": [
+      "Attempt to cause death intentionally"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to life imprisonment"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "attempt",
+      "murder",
+      "cause",
+      "death",
+      "intentionally"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "299",
+    "title": "Culpable Homicide",
+    "category": "Crimes Against Person",
+    "description": "Causing death without intention of murder",
+    "elements": [
+      "Causing death without intention of murder"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Varies"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "culpable",
+      "homicide",
+      "causing",
+      "death",
+      "without",
+      "intention",
+      "murder"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "363",
+    "title": "Kidnapping",
+    "category": "Crimes Against Person",
+    "description": "Taking person without consent",
+    "elements": [
+      "Taking person without consent"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 7 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "kidnapping",
+      "taking",
+      "person",
+      "without",
+      "consent"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "362",
+    "title": "Abduction",
+    "category": "Crimes Against Person",
+    "description": "Forcefully taking someone",
+    "elements": [
+      "Forcefully taking someone"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Varies"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "abduction",
+      "forcefully",
+      "taking",
+      "someone"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "339",
+    "title": "Wrongful Restraint",
+    "category": "Crimes Against Person",
+    "description": "Preventing movement",
+    "elements": [
+      "Preventing movement"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 1 month"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "wrongful",
+      "restraint",
+      "preventing",
+      "movement"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "340",
+    "title": "Wrongful Confinement",
+    "category": "Crimes Against Person",
+    "description": "Illegal confinement",
+    "elements": [
+      "Illegal confinement"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 1 year"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "wrongful",
+      "confinement",
+      "illegal"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "351",
+    "title": "Assault",
+    "category": "Crimes Against Person",
+    "description": "Threat or attempt of force",
+    "elements": [
+      "Threat or attempt of force"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 months"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "assault",
+      "threat",
+      "attempt",
+      "force"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "323",
+    "title": "Causing Hurt",
+    "category": "Crimes Against Person",
+    "description": "Physical injury",
+    "elements": [
+      "Physical injury"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 1 year"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "causing",
+      "hurt",
+      "physical",
+      "injury"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "325",
+    "title": "Grievous Hurt",
+    "category": "Crimes Against Person",
+    "description": "Serious injury",
+    "elements": [
+      "Serious injury"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 7 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "grievous",
+      "hurt",
+      "serious",
+      "injury"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "326A",
+    "title": "Acid Attack",
+    "category": "Crimes Against Person",
+    "description": "Attack using acid causing injury",
+    "elements": [
+      "Attack using acid causing injury"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "10 years to life"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "acid",
+      "attack",
+      "using",
+      "causing",
+      "injury"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "376",
+    "title": "Rape",
+    "category": "Crimes Against Women",
+    "description": "Sexual assault without consent",
+    "elements": [
+      "Sexual assault without consent"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "7 years to life"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "rape",
+      "sexual",
+      "assault",
+      "without",
+      "consent"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "354A",
+    "title": "Sexual Harassment",
+    "category": "Crimes Against Women",
+    "description": "Unwelcome sexual behavior",
+    "elements": [
+      "Unwelcome sexual behavior"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "sexual",
+      "harassment",
+      "unwelcome",
+      "behavior"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "354C",
+    "title": "Voyeurism",
+    "category": "Crimes Against Women",
+    "description": "Watching private acts",
+    "elements": [
+      "Watching private acts"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 7 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "voyeurism",
+      "watching",
+      "private",
+      "acts"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "354D",
+    "title": "Stalking",
+    "category": "Crimes Against Women",
+    "description": "Following repeatedly",
+    "elements": [
+      "Following repeatedly"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "stalking",
+      "following",
+      "repeatedly"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "498A",
+    "title": "Cruelty by Husband",
+    "category": "Domestic Violence",
+    "description": "Abuse by spouse",
+    "elements": [
+      "Abuse by spouse"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "cruelty",
+      "husband",
+      "abuse",
+      "spouse"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "378",
+    "title": "Theft",
+    "category": "Property Crime",
+    "description": "Dishonest taking of property",
+    "elements": [
+      "Dishonest taking of property"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "theft",
+      "dishonest",
+      "taking",
+      "property"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "392",
+    "title": "Robbery",
+    "category": "Property Crime",
+    "description": "Theft using force",
+    "elements": [
+      "Theft using force"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 10 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "robbery",
+      "theft",
+      "using",
+      "force"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "395",
+    "title": "Dacoity",
+    "category": "Property Crime",
+    "description": "Robbery by 5+ persons",
+    "elements": [
+      "Robbery by 5+ persons"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Life imprisonment"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "dacoity",
+      "robbery",
+      "persons"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "384",
+    "title": "Extortion",
+    "category": "Property Crime",
+    "description": "Obtaining property by threat",
+    "elements": [
+      "Obtaining property by threat"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "extortion",
+      "obtaining",
+      "property",
+      "threat"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "406",
+    "title": "Criminal Breach of Trust",
+    "category": "Property Crime",
+    "description": "Misuse of entrusted property",
+    "elements": [
+      "Misuse of entrusted property"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "criminal",
+      "breach",
+      "trust",
+      "misuse",
+      "entrusted",
+      "property"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "420",
+    "title": "Cheating",
+    "category": "Fraud",
+    "description": "Dishonest inducement",
+    "elements": [
+      "Dishonest inducement"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 7 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "cheating",
+      "dishonest",
+      "inducement"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "463",
+    "title": "Forgery",
+    "category": "Fraud",
+    "description": "Making false documents",
+    "elements": [
+      "Making false documents"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 2 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "forgery",
+      "making",
+      "false",
+      "documents"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "471",
+    "title": "Using Forged Document",
+    "category": "Fraud",
+    "description": "Using fake document",
+    "elements": [
+      "Using fake document"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Same as forgery"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "using",
+      "forged",
+      "document",
+      "fake"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "499",
+    "title": "Defamation",
+    "category": "Reputation Crime",
+    "description": "Harming reputation",
+    "elements": [
+      "Harming reputation"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 2 years"
+    },
+    "bailable": true,
+    "cognizable": false,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "defamation",
+      "harming",
+      "reputation"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "503",
+    "title": "Criminal Intimidation",
+    "category": "Public Order",
+    "description": "Threatening harm",
+    "elements": [
+      "Threatening harm"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 2 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "criminal",
+      "intimidation",
+      "threatening",
+      "harm"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "147",
+    "title": "Rioting",
+    "category": "Public Order",
+    "description": "Violent unlawful assembly",
+    "elements": [
+      "Violent unlawful assembly"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 2 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "rioting",
+      "violent",
+      "unlawful",
+      "assembly"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "141",
+    "title": "Unlawful Assembly",
+    "category": "Public Order",
+    "description": "Group with illegal intent",
+    "elements": [
+      "Group with illegal intent"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Varies"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "unlawful",
+      "assembly",
+      "group",
+      "with",
+      "illegal",
+      "intent"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "268",
+    "title": "Public Nuisance",
+    "category": "Public Order",
+    "description": "Disturbing public peace",
+    "elements": [
+      "Disturbing public peace"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Fine"
+    },
+    "bailable": true,
+    "cognizable": false,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "public",
+      "nuisance",
+      "disturbing",
+      "peace"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "124A",
+    "title": "Sedition",
+    "category": "State Offence",
+    "description": "Anti-state activities",
+    "elements": [
+      "Anti-state activities"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Life imprisonment"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "sedition",
+      "anti-state",
+      "activities"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "121",
+    "title": "Waging War",
+    "category": "State Offence",
+    "description": "War against state",
+    "elements": [
+      "War against state"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Death or life"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "waging",
+      "war",
+      "against",
+      "state"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "489A",
+    "title": "Counterfeit Currency",
+    "category": "Economic Crime",
+    "description": "Fake currency production",
+    "elements": [
+      "Fake currency production"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Life imprisonment"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "counterfeit",
+      "currency",
+      "fake",
+      "production"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "489B",
+    "title": "Using Fake Currency",
+    "category": "Economic Crime",
+    "description": "Using fake currency",
+    "elements": [
+      "Using fake currency"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 10 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "using",
+      "fake",
+      "currency"
+    ]
+  },
+  {
+    "law": "Prevention of Corruption Act",
+    "section": "7",
+    "title": "Bribery",
+    "category": "Corruption",
+    "description": "Accepting illegal gratification",
+    "elements": [
+      "Accepting illegal gratification"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 7 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Special Court",
+    "keywords": [
+      "bribery",
+      "accepting",
+      "illegal",
+      "gratification"
+    ]
+  },
+  {
+    "law": "PMLA",
+    "section": "3",
+    "title": "Money Laundering",
+    "category": "Economic Crime",
+    "description": "Concealing illegal money",
+    "elements": [
+      "Concealing illegal money"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 7 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Special Court",
+    "keywords": [
+      "money",
+      "laundering",
+      "concealing",
+      "illegal"
+    ]
+  },
+  {
+    "law": "NDPS",
+    "section": "21",
+    "title": "Drug Possession",
+    "category": "Drugs",
+    "description": "Possession of narcotics",
+    "elements": [
+      "Possession of narcotics"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Varies"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Special Court",
+    "keywords": [
+      "drug",
+      "possession",
+      "narcotics"
+    ]
+  },
+  {
+    "law": "NDPS",
+    "section": "27A",
+    "title": "Drug Trafficking",
+    "category": "Drugs",
+    "description": "Drug trade",
+    "elements": [
+      "Drug trade"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Severe punishment"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Special Court",
+    "keywords": [
+      "drug",
+      "trafficking",
+      "trade"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "279",
+    "title": "Rash Driving",
+    "category": "Traffic",
+    "description": "Dangerous driving",
+    "elements": [
+      "Dangerous driving"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 6 months"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "rash",
+      "driving",
+      "dangerous"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "304A",
+    "title": "Death by Negligence",
+    "category": "Traffic",
+    "description": "Negligence causing death",
+    "elements": [
+      "Negligence causing death"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 2 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "death",
+      "negligence",
+      "causing"
+    ]
+  },
+  {
+    "law": "MV Act",
+    "section": "185",
+    "title": "Drunk Driving",
+    "category": "Traffic",
+    "description": "Driving under alcohol",
+    "elements": [
+      "Driving under alcohol"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Fine/imprisonment"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "drunk",
+      "driving",
+      "under",
+      "alcohol"
+    ]
+  },
+  {
+    "law": "MV Act",
+    "section": "181",
+    "title": "No License Driving",
+    "category": "Traffic",
+    "description": "Driving without license",
+    "elements": [
+      "Driving without license"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Fine"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "license",
+      "driving",
+      "without"
+    ]
+  },
+  {
+    "law": "IT Act",
+    "section": "66",
+    "title": "Hacking",
+    "category": "Cyber Crime",
+    "description": "Unauthorized access",
+    "elements": [
+      "Unauthorized access"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "hacking",
+      "unauthorized",
+      "access"
+    ]
+  },
+  {
+    "law": "IT Act",
+    "section": "66C",
+    "title": "Identity Theft",
+    "category": "Cyber Crime",
+    "description": "Using another identity",
+    "elements": [
+      "Using another identity"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "identity",
+      "theft",
+      "using",
+      "another"
+    ]
+  },
+  {
+    "law": "IT Act",
+    "section": "66D",
+    "title": "Cyber Fraud",
+    "category": "Cyber Crime",
+    "description": "Online cheating",
+    "elements": [
+      "Online cheating"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "cyber",
+      "fraud",
+      "online",
+      "cheating"
+    ]
+  },
+  {
+    "law": "IT Act",
+    "section": "67",
+    "title": "Obscene Content",
+    "category": "Cyber Crime",
+    "description": "Publishing obscene content",
+    "elements": [
+      "Publishing obscene content"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 5 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "obscene",
+      "content",
+      "publishing"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "435",
+    "title": "Arson",
+    "category": "Property Crime",
+    "description": "Setting fire to property",
+    "elements": [
+      "Setting fire to property"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 7 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "arson",
+      "setting",
+      "fire",
+      "property"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "445",
+    "title": "House Breaking",
+    "category": "Property Crime",
+    "description": "Breaking into house",
+    "elements": [
+      "Breaking into house"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Varies"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "house",
+      "breaking",
+      "into"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "494",
+    "title": "Bigamy",
+    "category": "Family Crime",
+    "description": "Marrying again during lifetime",
+    "elements": [
+      "Marrying again during lifetime"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 7 years"
+    },
+    "bailable": true,
+    "cognizable": false,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "bigamy",
+      "marrying",
+      "again",
+      "during",
+      "lifetime"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "272",
+    "title": "Adulteration",
+    "category": "Public Health",
+    "description": "Adulterating food",
+    "elements": [
+      "Adulterating food"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 6 months"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "adulteration",
+      "adulterating",
+      "food"
+    ]
+  },
+  {
+    "law": "IPC",
+    "section": "370",
+    "title": "Human Trafficking",
+    "category": "Crimes Against Person",
+    "description": "Exploitation of persons",
+    "elements": [
+      "Exploitation of persons"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "7 years to life"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Sessions Court",
+    "keywords": [
+      "human",
+      "trafficking",
+      "exploitation",
+      "persons"
+    ]
+  },
+  {
+    "law": "CL Act",
+    "section": "Various",
+    "title": "Child Labour",
+    "category": "Labour Law",
+    "description": "Employing children",
+    "elements": [
+      "Employing children"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Penalty"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "child",
+      "labour",
+      "employing",
+      "children"
+    ]
+  },
+  {
+    "law": "PCA Act",
+    "section": "11",
+    "title": "Animal Cruelty",
+    "category": "Animal Law",
+    "description": "Cruelty to animals",
+    "elements": [
+      "Cruelty to animals"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Fine/imprisonment"
+    },
+    "bailable": true,
+    "cognizable": false,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "animal",
+      "cruelty",
+      "animals"
+    ]
+  },
+  {
+    "law": "EPA",
+    "section": "15",
+    "title": "Environmental Pollution",
+    "category": "Environment",
+    "description": "Pollution violation",
+    "elements": [
+      "Pollution violation"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 5 years"
+    },
+    "bailable": false,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Court",
+    "keywords": [
+      "environmental",
+      "pollution",
+      "violation"
+    ]
+  },
+  {
+    "law": "Mines Act",
+    "section": "Various",
+    "title": "Illegal Mining",
+    "category": "Economic Crime",
+    "description": "Unauthorized mining",
+    "elements": [
+      "Unauthorized mining"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Varies"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Court",
+    "keywords": [
+      "illegal",
+      "mining",
+      "unauthorized"
+    ]
+  },
+  {
+    "law": "IPC/IT",
+    "section": "354D",
+    "title": "Cyber Stalking",
+    "category": "Cyber Crime",
+    "description": "Online harassment",
+    "elements": [
+      "Online harassment"
+    ],
+    "punishment": {
+      "type": [
+        "Imprisonment / Fine"
+      ],
+      "duration": "Up to 3 years"
+    },
+    "bailable": true,
+    "cognizable": true,
+    "compoundable": false,
+    "triable_by": "Magistrate",
+    "keywords": [
+      "cyber",
+      "stalking",
+      "online",
+      "harassment"
+    ]
+  }
+]
