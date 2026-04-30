@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 import Demo from "./demo";
 import GridScanPage from "./pages/GridScanPage";
@@ -13,6 +14,8 @@ import ImageCreator from "./pages/ImageCreator";
 import AvatarCreator from "./pages/AvatarCreator";
 import AskPage from "./pages/AskPage";
 import AiPage from "./pages/AiPage";
+import SearchPage from "./pages/SearchPage";
+import LawsPage from "./pages/LawsPage";
 import GamesPage from "./pages/GamesPage";
 import ProfilePage from "./pages/ProfilePage";
 import SnakeLadder from "./pages/games/SnakeLadder";
@@ -55,8 +58,12 @@ function GlobalBackground() {
 
 function GlobalProfileButton({ onOpenAuth }: { onOpenAuth: () => void }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLightMode, toggleTheme } = useTheme();
   const { user } = useAuth();
+
+  const hideOnRoutes = ["/ask", "/laws"];
+  if (hideOnRoutes.includes(location.pathname)) return null;
 
   const handleProfileClick = () => {
     if (user) {
@@ -110,6 +117,8 @@ function AppContent() {
           <Route path="/create/avatar" element={<AvatarCreator />} />
           <Route path="/ask" element={<AskPage />} />
           <Route path="/ai" element={<AiPage />} />
+          <Route path="/search" element={<SearchPage onBack={() => window.history.back()} />} />
+          <Route path="/laws" element={<LawsPage />} />
           <Route path="/games" element={<GamesPage />} />
           {/* Games */}
           <Route path="/games/snake-ladder" element={<SnakeLadder />} />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, RotateCcw, Search, Mic, ImageIcon } from "lucide-react";
 import AnoAI from "@/components/ui/animated-shader-background";
+import axios from "axios";
 
 interface SearchResult {
   title: string;
@@ -76,14 +77,28 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
   const [activeTab, setActiveTab] = useState("ALL");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [generalAiResponse, setGeneralAiResponse] = useState<string | null>(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     const normalizedQuery = query.toLowerCase().trim();
     const foundResults =
       mockResultsMap[normalizedQuery as keyof typeof mockResultsMap] ||
       mockResultsMap["react"];
     setResults(foundResults);
     setSearchQuery(query);
+
+    setIsAiLoading(true);
+    setGeneralAiResponse(null);
+    try {
+      const res = await axios.post("http://localhost:5000/api/chat/ask", { message: query, mode: "general" });
+      setGeneralAiResponse(res.data.response);
+    } catch (error) {
+      console.error("Error communicating with AI engine:", error);
+      setGeneralAiResponse("Failed to connect to the General AI engine.");
+    } finally {
+      setIsAiLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -210,17 +225,43 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        {/* Results Section */}
-        {results.length > 0 ? (
-          <div className="flex-1">
-            <div className="max-w-2xl mx-auto px-6 py-6">
-              {/* Result count */}
-              <div className="text-sm text-white/50 mb-6">
-                About 1.2B results (0.42 seconds)
-              </div>
+        {/* Main Content Section */}
+        <div className="flex-1 overflow-y-auto w-full">
+          <div className="max-w-6xl mx-auto px-6 py-8">
+            
+            {/* Results Section */}
+            {results.length > 0 ? (
+              <div className="max-w-2xl mx-auto">
+                {/* Result count */}
+                <div className="text-sm text-white/50 mb-6 border-b border-white/10 pb-4">
+                  About 1.2B web results (0.42 seconds)
+                </div>
 
-              {/* Results list */}
-              <div className="space-y-6">
+                {/* AI Answer Section */}
+                {(isAiLoading || generalAiResponse) && (
+                  <div className="mb-8 p-6 bg-blue-900/20 border border-blue-500/30 rounded-xl backdrop-blur-md shadow-xl flex flex-col">
+                    <div className="flex items-center gap-3 mb-4 border-b border-blue-500/20 pb-4">
+                      <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                        <span className="text-2xl">✨</span>
+                      </div>
+                      <h3 className="text-xl font-semibold text-blue-400 tracking-wide">AI Overview</h3>
+                    </div>
+                    {isAiLoading ? (
+                      <div className="animate-pulse flex flex-col space-y-4 mt-2">
+                        <div className="h-4 bg-blue-400/20 rounded w-full"></div>
+                        <div className="h-4 bg-blue-400/20 rounded w-5/6"></div>
+                        <div className="h-4 bg-blue-400/20 rounded w-4/6"></div>
+                      </div>
+                    ) : generalAiResponse ? (
+                      <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-base">
+                        {generalAiResponse}
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+
+                {/* Results list */}
+                <div className="space-y-8">
                 {results.map((result, idx) => (
                   <div key={idx} className="group">
                     <a
@@ -239,24 +280,25 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
                 ))}
               </div>
             </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center mt-12">
+                <h2 className="text-2xl text-white/40 mb-4">Start searching</h2>
+                <p className="text-white/50 mb-6">Try: node.js, python, or react</p>
+                <div className="flex gap-3">
+                  {["node.js", "python", "react"].map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => handleSearch(suggestion)}
+                      className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-md text-white/80 text-sm transition-colors border border-white/20"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <h2 className="text-2xl text-white/40 mb-4">Start searching</h2>
-            <p className="text-white/50 mb-6">Try: node.js, python, or react</p>
-            <div className="flex gap-3">
-              {["node.js", "python", "react"].map((suggestion) => (
-                <button
-                  key={suggestion}
-                  onClick={() => handleSearch(suggestion)}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-md text-white/80 text-sm transition-colors border border-white/20"
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

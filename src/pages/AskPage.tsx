@@ -6,6 +6,7 @@ import AnoAI from "@/components/ui/animated-shader-background";
 import { mockChats, aiResponses } from "@/components/chat/mockChatData";
 import type { Chat, Message } from "@/components/chat/mockChatData";
 import { useTheme } from "@/contexts/ThemeContext";
+import axios from "axios";
 
 export default function AskPage() {
   const { isLightMode, setMode } = useTheme();
@@ -22,34 +23,7 @@ export default function AskPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
 
-  // Generate mock AI response (simulating different responses)
-  const generateAIResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-
-    // Check for keyword matches
-    for (const [key, response] of Object.entries(aiResponses)) {
-      if (lowerMessage.includes(key)) {
-        return response;
-      }
-    }
-
-    // Generic responses based on message type
-    if (lowerMessage.endsWith("?")) {
-      const responses = [
-        `That's a great question! Based on your inquiry about "${userMessage.slice(0, 30)}...", here are some key insights:\n\n• This is a complex topic that requires careful consideration\n• There are multiple approaches to address this\n• The best solution depends on your specific context and requirements`,
-        `Interesting! I'd suggest:\n\n1. **Research** - Look into the fundamentals\n2. **Practice** - Hands-on experience is crucial\n3. **Iterate** - Keep refining your approach\n4. **Collaborate** - Seek feedback from others`,
-        `Great question! Here's my take:\n\n**Key Points:**\n- Understanding the problem is the first step\n- Break it down into smaller components\n- Test your assumptions with real data\n- Document your findings for future reference`,
-      ];
-      return responses[Math.floor(Math.random() * responses.length)];
-    } else {
-      const responses = [
-        `That's interesting! I understand you're saying "${userMessage.slice(0, 40)}...". Here are some thoughts:\n\nThis approach makes sense because it \n- Addresses the core issue\n- Is scalable and maintainable\n- Follows best practices`,
-        `Thanks for sharing! Building on that idea:\n\n✓ You're on the right track\n✓ Consider adding more context\n✓ Test thoroughly before implementing`,
-        `Good point! To expand on that:\n\nThe key is to focus on what matters most. By prioritizing tasks and breaking them into manageable chunks, you can make steady progress toward your goals.`,
-      ];
-      return responses[Math.floor(Math.random() * responses.length)];
-    }
-  };
+  // The backend now handles the generation with the SYSTEM_PROMPT.
 
   // Handle sending messages
   const handleSendMessage = async (userMessage: string) => {
@@ -81,13 +55,18 @@ export default function AskPage() {
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
-    // Simulate AI thinking delay
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1000 + Math.random() * 1000),
-    );
+    // Generate AI response by calling backend
+    let aiResponse = "";
+    try {
+      const res = await axios.post("http://localhost:5000/api/chat/ask", {
+        message: userMessage,
+      });
+      aiResponse = res.data.response;
+    } catch (error) {
+      console.error("Error communicating with AI engine:", error);
+      aiResponse = "[ANSWER]\nI'm sorry, I couldn't process your request at this time.\n\n[EXPLANATION]\nThere was an error communicating with the backend API.\n\n[SOURCE BASIS]\n- System Error";
+    }
 
-    // Generate AI response
-    const aiResponse = generateAIResponse(userMessage);
     const aiMsg: Message = {
       id: (Date.now() + 1).toString(),
       role: "assistant",
@@ -97,7 +76,7 @@ export default function AskPage() {
     setMessages((prev) => [...prev, aiMsg]);
     setIsLoading(false);
 
-    // Save to active chat if one is selected
+    // Save to active chat if one is selected, else create a new chat
     if (activeChatId) {
       setChats((prevChats) =>
         prevChats.map((chat) =>
@@ -106,6 +85,18 @@ export default function AskPage() {
             : chat,
         ),
       );
+    } else {
+      const newChatId = Date.now().toString();
+      const newChatTitle = userMessage.slice(0, 25) + (userMessage.length > 25 ? "..." : "");
+      const newChat: Chat = {
+        id: newChatId,
+        title: newChatTitle,
+        messages: [userMsg, aiMsg],
+        timestamp: new Date(),
+        group: false,
+      };
+      setChats((prevChats) => [newChat, ...prevChats]);
+      setActiveChatId(newChatId);
     }
   };
 
@@ -145,6 +136,7 @@ export default function AskPage() {
           activeNavTab={activeNavTab}
           onNavTabChange={setActiveNavTab}
           activeChatId={activeChatId}
+          chats={_chats}
         />
 
         {/* Main Chat Area */}
