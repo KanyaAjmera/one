@@ -16,7 +16,7 @@ import AskPage from "./pages/AskPage";
 import AiPage from "./pages/AiPage";
 import SearchPage from "./pages/SearchPage";
 import LawsPage from "./pages/LawsPage";
-import LawsAskPage from "./pages/LawsAskPage";
+import AiLawsPage from "./pages/AiLawsPage";
 import GamesPage from "./pages/GamesPage";
 import ProfilePage from "./pages/ProfilePage";
 import SnakeLadder from "./pages/games/SnakeLadder";
@@ -63,7 +63,7 @@ function GlobalProfileButton({ onOpenAuth }: { onOpenAuth: () => void }) {
   const { isLightMode, toggleTheme } = useTheme();
   const { user } = useAuth();
 
-  const hideOnRoutes = ["/ask", "/laws", "/lawsask"];
+  const hideOnRoutes = ["/ask", "/laws", "/lawsai"];
   if (hideOnRoutes.includes(location.pathname)) return null;
 
   const handleProfileClick = () => {
@@ -120,7 +120,7 @@ function AppContent() {
           <Route path="/ai" element={<AiPage />} />
           <Route path="/search" element={<SearchPage onBack={() => window.history.back()} />} />
           <Route path="/laws" element={<LawsPage />} />
-          <Route path="/lawsask" element={<LawsAskPage />} />
+          <Route path="/lawsai" element={<AiLawsPage />} />
           <Route path="/games" element={<GamesPage />} />
           {/* Games */}
           <Route path="/games/snake-ladder" element={<SnakeLadder />} />
