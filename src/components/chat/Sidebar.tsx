@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { navMenuItems } from "./mockChatData";
 import type { Chat } from "./mockChatData";
 import axios from "axios";
+import { NODE_API_URL } from "@/config";
 
 interface Law {
   crime: string;
@@ -68,7 +69,7 @@ export default function Sidebar({
 
   useEffect(() => {
     if (hideNavMenu) {
-      axios.get("http://localhost:5000/api/chat/laws")
+      axios.get(`${NODE_API_URL}/api/chat/laws`)
         .then(res => {
           if (res.data.success) {
             setLawsData(res.data.data);

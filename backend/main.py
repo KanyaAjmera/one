@@ -4,10 +4,12 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
-from dotenv import load_dotenv
 import requests
 import io
 import sys
+from rapidfuzz import fuzz
+from dotenv import load_dotenv
+from config.mongodb import get_mongo_db, initialize_database
 
 # Load .env from parent directory with absolute path
 env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
@@ -39,13 +41,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+async def startup_event():
+    try:
+        initialize_database()
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+
 api_key = os.getenv("VITE_GEMINI_API_KEY")
 print(f"API Key loaded: {api_key[:20] if api_key else 'NOT FOUND'}...")
 if api_key:
     genai.configure(api_key=api_key)
-    print(f"✓ Gemini API configured successfully")
+    print(f"[OK] Gemini API configured successfully")
 else:
-    print("✗ WARNING: Gemini API key not loaded - check .env file")
+    print("[WARN] Gemini API key not loaded - check .env file")
 
 class AskRequest(BaseModel):
     question: str
@@ -55,6 +64,9 @@ class GeneratePdfRequest(BaseModel):
 
 class GeneratePptRequest(BaseModel):
     topic: str
+
+class LawsAskRequest(BaseModel):
+    query: str
 
 @app.get("/health")
 async def health():
@@ -161,6 +173,54 @@ async def generate_avatar(prompt: str, style: str = "realistic"):
         return Response(content=image_bytes, media_type="image/png")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/lawsask")
+async def lawsask(req: LawsAskRequest):
+    query = req.query.lower()
+    
+    legal_keywords = [
+        "law", "crime", "ipc", "fraud", "murder", "rape", "theft", "hack", "cyber", "drugs", "police", "illegal", "punishment", "section", "act", "court"
+    ]
+    
+    if not any(k in query for k in legal_keywords):
+        return {"response": "This chatbot only answers Indian law and crime related queries."}
+        
+    db = get_mongo_db()
+    laws = list(db["laws"].find({}, {"_id": 0}))
+    
+    if not laws:
+        return {"response": "No laws available in database."}
+
+    matches = []
+    
+    for law in laws:
+        search_str = f"{law.get('title', '')} {law.get('description', '')} {law.get('law', '')} {' '.join(law.get('keywords', []))}"
+        score = fuzz.token_set_ratio(query, search_str)
+        if score > 30:
+            matches.append({"law": law, "score": score})
+            
+    if matches:
+        matches = sorted(matches, key=lambda x: x["score"], reverse=True)
+        top_matches = matches[:5]
+        
+        response_text = ""
+        for i, match in enumerate(top_matches):
+            law = match["law"]
+            punishment_type = ", ".join(law.get("punishment", {}).get("type", []))
+            duration = law.get("punishment", {}).get("duration", "")
+            punishment_str = f"{punishment_type}"
+            if duration:
+                punishment_str += f"\n{duration}"
+                
+            response_text += f"[LAW]: {law.get('law', '')}\n[SECTION]: {law.get('section', '')}\n\n[DESCRIPTION]:\n{law.get('description', '')}\n\n[PUNISHMENT]:\n{punishment_str}"
+            if i < len(top_matches) - 1:
+                response_text += "\n\n" + "-"*40 + "\n\n"
+                
+        response_text += "\n\n[NOTE]:\nThis is not legal advice."
+        return {"response": response_text}
+    else:
+        return {"response": "Could not find an exact law match for your query, but this is a legal topic. Please try with more specific terms."}
+
 
 if __name__ == "__main__":
     import uvicorn

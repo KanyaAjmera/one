@@ -1,7 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import { NODE_API_URL } from "@/config";
 import AnoAI from "@/components/ui/animated-shader-background";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Bot } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Punishment {
   type: string[];
@@ -32,13 +35,14 @@ interface LawCategory {
 
 export default function LawsPage() {
   const { isLightMode } = useTheme();
+  const navigate = useNavigate();
   
   const [lawsData, setLawsData] = useState<LawCategory[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/chat/laws")
+    axios.get(`${NODE_API_URL}/api/chat/laws`)
       .then(res => {
         if (res.data.success) {
           setLawsData(res.data.data);
@@ -187,6 +191,16 @@ export default function LawsPage() {
         </div>
 
       </div>
+
+      {/* LawsAsk Chatbot FAB */}
+      <button
+        onClick={() => navigate('/lawsask')}
+        className="fixed bottom-8 right-8 z-50 p-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-transform hover:scale-110 flex items-center justify-center gap-2"
+      >
+        <Bot size={24} />
+        <span className="font-bold pr-2">LawsAsk Chat</span>
+      </button>
+
     </div>
   );
 }
