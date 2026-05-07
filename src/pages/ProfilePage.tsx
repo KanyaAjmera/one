@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { NODE_API_URL } from "@/config";
 import { useAuth } from "@/contexts/AuthContext";
 import AnoAI from "@/components/ui/animated-shader-background";
 import ProfileCard from "@/components/profile/ProfileCard";
@@ -19,7 +20,7 @@ export default function ProfilePage() {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const res = await axios.get("http://localhost:5000/api/game/stats", {
+        const res = await axios.get(`${NODE_API_URL}/api/game/stats`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.data.success) {

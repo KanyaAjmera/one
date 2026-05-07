@@ -25,7 +25,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // Allow Vite's default ports
+    origin: true, // Allow all origins to reflect the request origin for production
     credentials: true,
 }));
 

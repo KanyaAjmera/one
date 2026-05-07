@@ -7,6 +7,7 @@ import { mockChats, aiResponses } from "@/components/chat/mockChatData";
 import type { Chat, Message } from "@/components/chat/mockChatData";
 import { useTheme } from "@/contexts/ThemeContext";
 import axios from "axios";
+import { NODE_API_URL } from "@/config";
 
 export default function AskPage() {
   const { isLightMode, setMode } = useTheme();
@@ -58,7 +59,7 @@ export default function AskPage() {
     // Generate AI response by calling backend
     let aiResponse = "";
     try {
-      const res = await axios.post("http://localhost:5000/api/chat/ask", {
+      const res = await axios.post(`${NODE_API_URL}/api/chat/ask`, {
         message: userMessage,
       });
       aiResponse = res.data.response;

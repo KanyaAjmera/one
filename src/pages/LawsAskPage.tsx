@@ -5,6 +5,7 @@ import Navbar from "@/components/chat/Navbar";
 import type { Chat, Message } from "@/components/chat/mockChatData";
 import { useTheme } from "@/contexts/ThemeContext";
 import axios from "axios";
+import { PYTHON_API_URL } from "@/config";
 
 const initialLawsChats: Chat[] = [
   {
@@ -89,7 +90,7 @@ export default function LawsAskPage() {
     // Generate AI response by calling backend
     let aiResponse = "";
     try {
-      const res = await axios.post("/api/lawsask", {
+      const res = await axios.post(`${PYTHON_API_URL}/api/lawsask`, {
         query: userMessage,
       });
       aiResponse = res.data.response;

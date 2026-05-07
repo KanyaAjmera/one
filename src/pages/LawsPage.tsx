@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import { NODE_API_URL } from "@/config";
 import AnoAI from "@/components/ui/animated-shader-background";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Bot } from "lucide-react";
@@ -41,7 +42,7 @@ export default function LawsPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/chat/laws")
+    axios.get(`${NODE_API_URL}/api/chat/laws`)
       .then(res => {
         if (res.data.success) {
           setLawsData(res.data.data);

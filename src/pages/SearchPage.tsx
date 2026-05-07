@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, RotateCcw, Search, Mic, ImageIcon } from "lucide-react";
 import AnoAI from "@/components/ui/animated-shader-background";
 import axios from "axios";
+import { NODE_API_URL } from "@/config";
 
 interface SearchResult {
   title: string;
@@ -91,7 +92,7 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
     setIsAiLoading(true);
     setGeneralAiResponse(null);
     try {
-      const res = await axios.post("http://localhost:5000/api/chat/ask", { message: query, mode: "general" });
+      const res = await axios.post(`${NODE_API_URL}/api/chat/ask`, { message: query, mode: "general" });
       setGeneralAiResponse(res.data.response);
     } catch (error) {
       console.error("Error communicating with AI engine:", error);
