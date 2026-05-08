@@ -3,6 +3,7 @@ import { Lock, User, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../utils/api";
+import { NODE_API_URL } from "@/config";
 
 export default function AuthCard() {
   const [isLogin, setIsLogin] = useState(true);
@@ -152,7 +153,7 @@ export default function AuthCard() {
         <button 
           onClick={(e) => {
             e.preventDefault();
-            window.location.href = "http://localhost:5000/api/auth/google";
+            window.location.href = `${NODE_API_URL}/api/auth/google`;
           }}
           className="w-full bg-[#e8e9ea] hover:bg-gray-300 text-[#303134] font-semibold text-[16px] rounded-xl py-3.5 transition-all flex items-center justify-center gap-3"
         >

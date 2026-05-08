@@ -4,6 +4,7 @@ import { X, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import api from '../utils/api';
+import { NODE_API_URL } from '@/config';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -196,7 +197,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <button 
                 onClick={(e) => {
                   e.preventDefault();
-                  window.location.href = "http://localhost:5000/api/auth/google";
+                  window.location.href = `${NODE_API_URL}/api/auth/google`;
                 }}
                 className={`w-full font-semibold text-[15px] rounded-xl py-3 transition-all flex items-center justify-center gap-3 border ${
                   isLightMode 
