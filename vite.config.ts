@@ -10,12 +10,6 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true,
-      }
-    }
-  }
+  // Development server proxy is removed - use environment variables for production
+  // Frontend now uses VITE_NODE_API_URL and VITE_PYTHON_API_URL for all API calls
 })

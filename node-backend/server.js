@@ -24,10 +24,20 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({
-    origin: true, // Allow all origins to reflect the request origin for production
+// Configure CORS based on environment
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production' 
+        ? [
+            'https://infinity-frontend.vercel.app',
+            'https://your-vercel-domain.vercel.app',
+            'http://localhost:3000',
+            'http://localhost:5173'
+          ]
+        : true,
     credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

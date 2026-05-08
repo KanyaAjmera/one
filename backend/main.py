@@ -33,9 +33,26 @@ load_dotenv(dotenv_path=env_path, override=True)
 
 app = FastAPI()
 
+# Configure CORS based on environment
+import os as os_module
+is_production = os_module.getenv("ENVIRONMENT", "development") == "production"
+
+cors_origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+]
+
+if is_production:
+    cors_origins.extend([
+        "https://infinity-frontend.vercel.app",
+        "https://your-vercel-domain.vercel.app",
+    ])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

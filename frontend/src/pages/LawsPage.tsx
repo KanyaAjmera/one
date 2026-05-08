@@ -41,14 +41,18 @@ export default function LawsPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/chat/laws")
-      .then((res) => {
-        if (res.data.success) {
-          setLawsData(res.data.data);
-        }
-      })
-      .catch((err) => console.error("Failed to fetch laws:", err));
+    const fetchLaws = async () => {
+      const { NODE_API_URL } = await import("../config");
+      axios
+        .get(`${NODE_API_URL}/api/chat/laws`)
+        .then((res) => {
+          if (res.data.success) {
+            setLawsData(res.data.data);
+          }
+        })
+        .catch((err) => console.error("Failed to fetch laws:", err));
+    };
+    fetchLaws();
   }, []);
 
   const categories = ["All", ...lawsData.map((c) => c.category)];

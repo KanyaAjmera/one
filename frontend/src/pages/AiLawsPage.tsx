@@ -14,12 +14,13 @@ const initialLawsChats: Chat[] = [
       {
         id: "msg-1",
         role: "assistant",
-        content: "Hello. I am the Infinity Laws AI. How can I assist you with Indian legal information today?"
-      }
+        content:
+          "Hello. I am the Infinity Laws AI. How can I assist you with Indian legal information today?",
+      },
     ],
     timestamp: new Date(),
-    group: false
-  }
+    group: false,
+  },
 ];
 
 export default function AiLawsPage() {
@@ -70,14 +71,16 @@ export default function AiLawsPage() {
     // Generate AI response by calling backend with mode: "law"
     let aiResponse = "";
     try {
-      const res = await axios.post("http://localhost:5000/api/chat/ask", {
+      const { NODE_API_URL } = await import("../config");
+      const res = await axios.post(`${NODE_API_URL}/api/chat/ask`, {
         message: userMessage,
-        mode: "law"
+        mode: "law",
       });
       aiResponse = res.data.response;
     } catch (error) {
       console.error("Error communicating with AI engine:", error);
-      aiResponse = "[ANSWER]\nI'm sorry, I couldn't process your request at this time.\n\n[EXPLANATION]\nThere was an error communicating with the backend API.\n\n[SOURCE BASIS]\n- System Error";
+      aiResponse =
+        "[ANSWER]\nI'm sorry, I couldn't process your request at this time.\n\n[EXPLANATION]\nThere was an error communicating with the backend API.\n\n[SOURCE BASIS]\n- System Error";
     }
 
     const aiMsg: Message = {
@@ -100,7 +103,8 @@ export default function AiLawsPage() {
       );
     } else {
       const newChatId = Date.now().toString();
-      const newChatTitle = userMessage.slice(0, 25) + (userMessage.length > 25 ? "..." : "");
+      const newChatTitle =
+        userMessage.slice(0, 25) + (userMessage.length > 25 ? "..." : "");
       const newChat: Chat = {
         id: newChatId,
         title: newChatTitle,
@@ -135,8 +139,9 @@ export default function AiLawsPage() {
   };
 
   return (
-    <div className={`flex h-screen w-screen relative overflow-hidden transition-colors duration-1000 ${isLightMode ? 'bg-white/0' : 'bg-black/0'}`}>
-
+    <div
+      className={`flex h-screen w-screen relative overflow-hidden transition-colors duration-1000 ${isLightMode ? "bg-white/0" : "bg-black/0"}`}
+    >
       {/* Content Layer */}
       <div className="relative z-10 flex w-full h-full max-h-screen">
         {/* Sidebar */}
@@ -152,7 +157,9 @@ export default function AiLawsPage() {
         />
 
         {/* Main Chat Area */}
-        <div className={`flex-1 flex flex-col backdrop-blur-sm transition-colors duration-500 ${isLightMode ? 'bg-white/30' : 'bg-gray-950/60'}`}>
+        <div
+          className={`flex-1 flex flex-col backdrop-blur-sm transition-colors duration-500 ${isLightMode ? "bg-white/30" : "bg-gray-950/60"}`}
+        >
           {/* Navbar */}
           <Navbar
             onMenuClick={() => setSidebarOpen(!sidebarOpen)}
@@ -160,7 +167,7 @@ export default function AiLawsPage() {
             onModelChange={setSelectedModel}
             isLightMode={isLightMode}
             onToggleTheme={() => {
-              setMode(isLightMode ? 'default' : 'light');
+              setMode(isLightMode ? "default" : "light");
             }}
           />
 

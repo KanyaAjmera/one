@@ -12,15 +12,20 @@ export default function ProfilePage() {
   const [darkMode, setDarkMode] = useState(true);
   const [notifications, setNotifications] = useState(true);
   const { user } = useAuth();
-  const [stats, setStats] = useState({ currentStreak: 0, totalGamesPlayed: 0, lastPlayedDate: '' });
+  const [stats, setStats] = useState({
+    currentStreak: 0,
+    totalGamesPlayed: 0,
+    lastPlayedDate: "",
+  });
 
   useEffect(() => {
     const loadStats = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const res = await axios.get("http://localhost:5000/api/game/stats", {
-          headers: { Authorization: `Bearer ${token}` }
+        const { NODE_API_URL } = await import("../config");
+        const res = await axios.get(`${NODE_API_URL}/api/game/stats`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (res.data.success) {
           setStats(res.data.data);

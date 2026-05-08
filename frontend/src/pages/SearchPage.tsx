@@ -77,7 +77,9 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
   const [activeTab, setActiveTab] = useState("ALL");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const [generalAiResponse, setGeneralAiResponse] = useState<string | null>(null);
+  const [generalAiResponse, setGeneralAiResponse] = useState<string | null>(
+    null,
+  );
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   const handleSearch = async (query: string) => {
@@ -91,7 +93,11 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
     setIsAiLoading(true);
     setGeneralAiResponse(null);
     try {
-      const res = await axios.post("http://localhost:5000/api/chat/ask", { message: query, mode: "general" });
+      const { NODE_API_URL } = await import("../config");
+      const res = await axios.post(`${NODE_API_URL}/api/chat/ask`, {
+        message: query,
+        mode: "general",
+      });
       setGeneralAiResponse(res.data.response);
     } catch (error) {
       console.error("Error communicating with AI engine:", error);
@@ -228,7 +234,6 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
         {/* Main Content Section */}
         <div className="flex-1 overflow-y-auto w-full">
           <div className="max-w-6xl mx-auto px-6 py-8">
-            
             {/* Results Section */}
             {results.length > 0 ? (
               <div className="max-w-2xl mx-auto">
@@ -244,7 +249,9 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
                       <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
                         <span className="text-2xl">✨</span>
                       </div>
-                      <h3 className="text-xl font-semibold text-blue-400 tracking-wide">AI Overview</h3>
+                      <h3 className="text-xl font-semibold text-blue-400 tracking-wide">
+                        AI Overview
+                      </h3>
                     </div>
                     {isAiLoading ? (
                       <div className="animate-pulse flex flex-col space-y-4 mt-2">
@@ -262,28 +269,30 @@ export default function SearchPage({ onBack }: { onBack: () => void }) {
 
                 {/* Results list */}
                 <div className="space-y-8">
-                {results.map((result, idx) => (
-                  <div key={idx} className="group">
-                    <a
-                      href="#"
-                      className="text-sm text-white/50 hover:text-white/70 hover:underline"
-                    >
-                      {result.url}
-                    </a>
-                    <h3 className="text-xl text-blue-400 hover:text-blue-300 hover:underline cursor-pointer mt-1">
-                      {result.title}
-                    </h3>
-                    <p className="text-sm text-white/70 mt-2 leading-relaxed">
-                      {result.description}
-                    </p>
-                  </div>
-                ))}
+                  {results.map((result, idx) => (
+                    <div key={idx} className="group">
+                      <a
+                        href="#"
+                        className="text-sm text-white/50 hover:text-white/70 hover:underline"
+                      >
+                        {result.url}
+                      </a>
+                      <h3 className="text-xl text-blue-400 hover:text-blue-300 hover:underline cursor-pointer mt-1">
+                        {result.title}
+                      </h3>
+                      <p className="text-sm text-white/70 mt-2 leading-relaxed">
+                        {result.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
             ) : (
               <div className="flex flex-col items-center justify-center mt-12">
                 <h2 className="text-2xl text-white/40 mb-4">Start searching</h2>
-                <p className="text-white/50 mb-6">Try: node.js, python, or react</p>
+                <p className="text-white/50 mb-6">
+                  Try: node.js, python, or react
+                </p>
                 <div className="flex gap-3">
                   {["node.js", "python", "react"].map((suggestion) => (
                     <button
