@@ -49,9 +49,9 @@ export default function PdfCreator() {
   const handleGeneratePdfAI = async () => {
     if (!topic.trim()) return;
     setLoading(true);
-    setMessage("Generating content...");
+    setMessage("Generating content (this may take a moment)...");
     try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const baseUrl = import.meta.env.VITE_PYTHON_API_URL || '';
       const res = await fetch(`${baseUrl}/api/generate_pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,27 +65,327 @@ export default function PdfCreator() {
 
       const data = await res.json();
       
-      if (res.ok) {
+      if (res.ok && data.documentTitle) {
         setMessage("Creating PDF...");
         const doc = new jsPDF();
-        
-        doc.setFontSize(22);
-        doc.text(topic.toUpperCase(), 20, 20);
-        
-        doc.setFontSize(12);
-        const splitText = doc.splitTextToSize(data.content, 170);
-        
-        let cursor = 30;
-        splitText.forEach((line: string) => {
-           if (cursor > 280) {
+
+        interface ThemeColors {
+          primary: string;
+          secondary: string;
+          background: string;
+          text: string;
+          accent: string;
+        }
+
+        const themeMap: Record<string, ThemeColors> = {
+          "Modern Blue": {
+            primary: "#0B3C5D",
+            secondary: "#328CC1",
+            background: "#F9F9F9",
+            text: "#1D2731",
+            accent: "#D9B310"
+          },
+          "Forest Green": {
+            primary: "#1E4620",
+            secondary: "#4E704F",
+            background: "#F4F6F4",
+            text: "#2C3531",
+            accent: "#D1A153"
+          },
+          "Dark Mode Minimalist": {
+            primary: "#111111",
+            secondary: "#444444",
+            background: "#FAFAFA",
+            text: "#222222",
+            accent: "#E28413"
+          },
+          "Warm Terracotta": {
+            primary: "#8D3B1B",
+            secondary: "#D07A5E",
+            background: "#FAF6F2",
+            text: "#2C1A11",
+            accent: "#CBB0A3"
+          },
+          "Vibrant Sunset": {
+            primary: "#D32E5E",
+            secondary: "#F36D4B",
+            background: "#FCF5F3",
+            text: "#2C1118",
+            accent: "#F9C03D"
+          }
+        };
+
+        const getThemeColors = (themeName: string): ThemeColors => {
+          const norm = (themeName || "").toLowerCase();
+          if (norm.includes("forest") || norm.includes("green")) return themeMap["Forest Green"];
+          if (norm.includes("dark") || norm.includes("minimal")) return themeMap["Dark Mode Minimalist"];
+          if (norm.includes("warm") || norm.includes("terracotta")) return themeMap["Warm Terracotta"];
+          if (norm.includes("vibrant") || norm.includes("sunset")) return themeMap["Vibrant Sunset"];
+          return themeMap["Modern Blue"];
+        };
+
+        const colors = getThemeColors(data.theme);
+        let pageNum = 1;
+
+        const addPageDecoration = (doc: jsPDF, title: string, colors: ThemeColors, page: number) => {
+          doc.setFont("Helvetica", "normal");
+          doc.setFontSize(9);
+          doc.setTextColor("#888888");
+          doc.text(`Infinity AI Document Suite  |  ${title}`, 20, 12);
+          doc.setDrawColor(colors.secondary);
+          doc.setLineWidth(0.5);
+          doc.line(20, 14, 190, 14);
+          doc.text(`Page ${page}`, 95, 287, { align: "center" });
+        };
+
+        const writeTextWrapped = (text: string, x: number, y: number, width: number, lineHeight: number): number => {
+          const lines = doc.splitTextToSize(text, width);
+          lines.forEach((line: string) => {
+            doc.text(line, x, y);
+            y += lineHeight;
+          });
+          return y;
+        };
+
+        const writeParagraph = (text: string, x: number, y: number, width: number, lineHeight: number): number => {
+          const lines = doc.splitTextToSize(text, width);
+          lines.forEach((line: string) => {
+            if (y > 265) {
               doc.addPage();
-              cursor = 20;
-           }
-           doc.text(line, 20, cursor);
-           cursor += 6;
-        });
+              pageNum++;
+              y = 30;
+              addPageDecoration(doc, data.documentTitle, colors, pageNum);
+              doc.setFont("Helvetica", "normal");
+              doc.setFontSize(10);
+              doc.setTextColor("#333333");
+            }
+            doc.text(line, x, y);
+            y += lineHeight;
+          });
+          return y;
+        };
+
+        // 1. Cover Page
+        doc.setFillColor(colors.primary);
+        doc.rect(0, 0, 210, 80, "F");
         
-        doc.save(`${topic.replace(/\s+/g, '_')}.pdf`);
+        doc.setFillColor(colors.accent);
+        doc.rect(0, 80, 210, 5, "F");
+        
+        doc.setTextColor("#FFFFFF");
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(26);
+        doc.text(data.documentTitle.toUpperCase(), 105, 45, { align: "center" });
+        
+        doc.setTextColor(colors.primary);
+        doc.setFontSize(16);
+        doc.setFont("Helvetica", "bold");
+        doc.text(data.documentType || "Research Document", 105, 120, { align: "center" });
+        
+        doc.setTextColor("#666666");
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text("Generated Automatically by Project Infinity", 105, 135, { align: "center" });
+        
+        doc.setDrawColor(colors.secondary);
+        doc.setLineWidth(0.5);
+        doc.line(40, 150, 170, 150);
+
+        // 2. TOC & Executive Summary
+        doc.addPage();
+        pageNum++;
+        addPageDecoration(doc, data.documentTitle, colors, pageNum);
+        
+        let cursorY = 30;
+        doc.setTextColor(colors.primary);
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("EXECUTIVE SUMMARY", 20, cursorY);
+        cursorY += 10;
+        
+        doc.setTextColor("#333333");
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(10);
+        cursorY = writeTextWrapped(data.executiveSummary || "", 20, cursorY, 170, 6) + 12;
+        
+        doc.setTextColor(colors.primary);
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("TABLE OF CONTENTS", 20, cursorY);
+        cursorY += 10;
+        
+        doc.setTextColor("#444444");
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(10);
+        
+        let sectionStartPage = 3;
+        (data.tableOfContents || []).forEach((item: string) => {
+          doc.text(item, 20, cursorY);
+          doc.text(" . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .", 80, cursorY);
+          doc.text(`Page ${sectionStartPage}`, 180, cursorY);
+          cursorY += 8;
+          sectionStartPage++;
+        });
+
+        // 3. Sections
+        data.sections.forEach((section: any) => {
+          doc.addPage();
+          pageNum++;
+          cursorY = 30;
+          addPageDecoration(doc, data.documentTitle, colors, pageNum);
+          
+          doc.setTextColor(colors.primary);
+          doc.setFont("Helvetica", "bold");
+          doc.setFontSize(16);
+          doc.text(section.sectionTitle, 20, cursorY);
+          cursorY += 5;
+          doc.setDrawColor(colors.primary);
+          doc.setLineWidth(1);
+          doc.line(20, cursorY, 190, cursorY);
+          cursorY += 12;
+          
+          if (section.subsections && Array.isArray(section.subsections)) {
+            section.subsections.forEach((sub: any) => {
+              if (cursorY > 240) {
+                doc.addPage();
+                pageNum++;
+                cursorY = 30;
+                addPageDecoration(doc, data.documentTitle, colors, pageNum);
+              }
+              
+              doc.setTextColor(colors.secondary);
+              doc.setFont("Helvetica", "bold");
+              doc.setFontSize(12);
+              doc.text(sub.subsectionTitle, 20, cursorY);
+              cursorY += 8;
+              
+              doc.setTextColor("#333333");
+              doc.setFont("Helvetica", "normal");
+              doc.setFontSize(10);
+              
+              if (sub.paragraphs && Array.isArray(sub.paragraphs)) {
+                sub.paragraphs.forEach((pText: string) => {
+                  cursorY = writeParagraph(pText, 20, cursorY, 170, 5) + 6;
+                });
+              }
+              
+              if (sub.table && sub.table.headers && sub.table.rows) {
+                const tableHeightEstimate = 10 + (sub.table.rows.length * 8);
+                if (cursorY + tableHeightEstimate > 260) {
+                  doc.addPage();
+                  pageNum++;
+                  cursorY = 30;
+                  addPageDecoration(doc, data.documentTitle, colors, pageNum);
+                }
+                
+                doc.setFillColor(colors.primary);
+                doc.rect(20, cursorY, 170, 8, "F");
+                doc.setTextColor("#FFFFFF");
+                doc.setFont("Helvetica", "bold");
+                doc.setFontSize(9);
+                
+                const colWidth = 170 / sub.table.headers.length;
+                sub.table.headers.forEach((h: string, i: number) => {
+                  doc.text(h, 22 + (i * colWidth), cursorY + 5.5);
+                });
+                
+                cursorY += 8;
+                
+                doc.setTextColor("#333333");
+                doc.setFont("Helvetica", "normal");
+                
+                sub.table.rows.forEach((row: string[], rIdx: number) => {
+                  if (rIdx % 2 === 1) {
+                    doc.setFillColor("#F2F4F7");
+                    doc.rect(20, cursorY, 170, 7, "F");
+                  }
+                  row.forEach((cellVal: string, cIdx: number) => {
+                    doc.text(cellVal || "", 22 + (cIdx * colWidth), cursorY + 5);
+                  });
+                  
+                  doc.setDrawColor("#E2E8F0");
+                  doc.setLineWidth(0.3);
+                  doc.line(20, cursorY + 7, 190, cursorY + 7);
+                  
+                  cursorY += 7;
+                });
+                cursorY += 8;
+              }
+              
+              if (sub.chart && sub.chart.data && sub.chart.type) {
+                const chartHeightEstimate = 55;
+                if (cursorY + chartHeightEstimate > 260) {
+                  doc.addPage();
+                  pageNum++;
+                  cursorY = 30;
+                  addPageDecoration(doc, data.documentTitle, colors, pageNum);
+                }
+                
+                doc.setFillColor("#FAFAFA");
+                doc.rect(20, cursorY, 170, 45, "F");
+                doc.setDrawColor("#E2E8F0");
+                doc.setLineWidth(0.5);
+                doc.rect(20, cursorY, 170, 45, "D");
+                
+                doc.setDrawColor("#888888");
+                doc.line(35, cursorY + 38, 175, cursorY + 38);
+                doc.line(35, cursorY + 8, 35, cursorY + 38);
+                
+                const chartData = sub.chart.data;
+                const barSpacing = 130 / (chartData.length || 1);
+                
+                doc.setFillColor(colors.secondary);
+                doc.setFontSize(8);
+                
+                chartData.forEach((item: any, i: number) => {
+                  const label = item.label || "";
+                  const val = Number(item.value) || 0;
+                  const barH = (val / 100) * 28;
+                  
+                  const barX = 42 + (i * barSpacing);
+                  const barY = cursorY + 38 - barH;
+                  const barW = Math.min(barSpacing - 10, 15);
+                  
+                  doc.rect(barX, barY, barW, barH, "F");
+                  
+                  doc.setTextColor("#555555");
+                  doc.text(label.slice(0, 10), barX + (barW/2), cursorY + 41.5, { align: "center" });
+                  doc.text(String(val), barX + (barW/2), barY - 1.5, { align: "center" });
+                });
+                
+                cursorY += 50;
+              }
+            });
+          }
+        });
+
+        // 4. References Page
+        if (data.references && data.references.length > 0) {
+          doc.addPage();
+          pageNum++;
+          cursorY = 30;
+          addPageDecoration(doc, data.documentTitle, colors, pageNum);
+          
+          doc.setTextColor(colors.primary);
+          doc.setFont("Helvetica", "bold");
+          doc.setFontSize(16);
+          doc.text("REFERENCES", 20, cursorY);
+          cursorY += 5;
+          doc.setDrawColor(colors.primary);
+          doc.setLineWidth(1);
+          doc.line(20, cursorY, 190, cursorY);
+          cursorY += 12;
+          
+          doc.setTextColor("#444444");
+          doc.setFont("Helvetica", "normal");
+          doc.setFontSize(10);
+          
+          data.references.forEach((ref: string, rIdx: number) => {
+            cursorY = writeParagraph(`[${rIdx + 1}]  ${ref}`, 20, cursorY, 170, 5) + 6;
+          });
+        }
+        
+        doc.save(`${(data.documentTitle || topic).replace(/\s+/g, '_')}.pdf`);
         setMessage("PDF Downloaded successfully!");
       } else {
         setMessage("Error: " + (data.detail || "Failed to generate"));

@@ -1,0 +1,5 @@
+[33m05625b4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mrender-config-work[m[33m, [m[1;32mfeature/lawsask-chatbot2[m[33m)[m Production: Configure Render backend URLs
+[33m197b167[m Production: Configure Render backend URLs
+[33mc63fd12[m[33m ([m[1;31morigin/feature/lawsask-chatbot2[m[33m)[m Configure production environment variables and CORS
+[33m1959def[m Add LawsAsk chatbot with law detection and MongoDB integration
+[33mecdbdda[m[33m ([m[1;31morigin/laws,aichat-feature[m[33m, [m[1;32mlaws,aichat-feature[m[33m)[m Add laws feature: dataset, UI updates, backend logic, and chatbot integration

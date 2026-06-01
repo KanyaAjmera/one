@@ -12,11 +12,18 @@ import chatRoutes from './routes/chatRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import fs from 'fs';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load env vars
-dotenv.config();
+// Load env vars from parent directory
+const parentEnvPath = path.resolve(__dirname, '../.env');
+if (fs.existsSync(parentEnvPath)) {
+    dotenv.config({ path: parentEnvPath });
+} else {
+    dotenv.config();
+}
 
 // Connect to Database
 connectDB();

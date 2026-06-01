@@ -92,57 +92,230 @@ async def health():
 @app.post("/api/ask")
 async def ask_question(req: AskRequest):
     if not api_key:
-        raise HTTPException(status_code=500, detail="Gemini API key not configured")
+        return {"answer": f"Offline Mode: Gemini API Key is missing.\n\nYou asked: '{req.question}'\n\nPlease add VITE_GEMINI_API_KEY to your .env file to enable the AI!"}
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(req.question)
         return {"answer": response.text}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"answer": f"Offline Mode: Failed to connect to Gemini.\n\nYou asked: '{req.question}'\n\nError details: {str(e)}"}
 
 @app.post("/api/generate_pdf")
 async def generate_pdf_content(req: GeneratePdfRequest):
-    if not api_key:
-        raise HTTPException(status_code=500, detail="Gemini API key not configured")
-    prompt = f"Write a detailed, structured, and comprehensive article about '{req.topic}'. Include an introduction, several main sections, and a conclusion. Format the response beautifully so it can be printed into a PDF."
+    system_prompt = """You are an expert Presentation Architect, Report Writer, Research Analyst, Business Consultant, and Technical Documentation Specialist.
+
+Your job is to convert natural language prompts into complete professional presentations and documents.
+
+Automatically determine:
+- Structure
+- Sections
+- Flow
+- Visual hierarchy
+- Content organization
+
+Generate professional, concise, high-quality content.
+Use logical progression.
+Avoid unnecessary filler.
+Generate presentation-ready and publication-ready output."""
+
+    format_instruction = """
+Return ONLY a valid JSON object matching the following structure:
+{
+  "documentTitle": "Title of the Document",
+  "documentType": "One of: Research Paper, Project Report, Assignment, Whitepaper, Business Report, Study Notes, Technical Documentation",
+  "theme": "Modern Blue, Forest Green, Dark Mode Minimalist, Warm Terracotta, or Vibrant Sunset",
+  "executiveSummary": "A concise executive summary paragraph.",
+  "tableOfContents": [
+     "Section Title 1",
+     "Section Title 2"
+  ],
+  "sections": [
+    {
+      "sectionTitle": "Section Title",
+      "subsections": [
+        {
+          "subsectionTitle": "Subsection Title",
+          "paragraphs": [
+            "Detailed paragraph content block...",
+            "Another detailed paragraph..."
+          ],
+          "table": {
+            "headers": ["Header A", "Header B"],
+            "rows": [
+              ["Value A1", "Value B1"],
+              ["Value A2", "Value B2"]
+            ]
+          },
+          "chart": {
+            "type": "bar",
+            "data": [
+              {"label": "Label A", "value": 30},
+              {"label": "Label B", "value": 70}
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "references": [
+    "Reference item 1",
+    "Reference item 2"
+  ]
+}
+Note: Leave the "table" or "chart" object null or empty if not appropriate for the subsection content. Do not include markdown codeblocks around the JSON.
+"""
+
+    prompt = f"Create a structured publication-ready document about: '{req.topic}' matching the document types requested.\n\n{format_instruction}"
+
+    openai_key = os.getenv("OPENAI_API_KEY")
+    response_text = ""
+    
+    if openai_key:
+        print("[AI] Using OpenAI to generate document content...")
+        try:
+            headers = {
+                "Authorization": f"Bearer {openai_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "model": "gpt-4o",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt}
+                ],
+                "response_format": {"type": "json_object"}
+            }
+            res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+            if res.status_code == 200:
+                response_text = res.json()["choices"][0]["message"]["content"]
+            else:
+                print(f"[WARN] OpenAI returned error: {res.text}. Falling back to Gemini...")
+        except Exception as e:
+            print(f"[WARN] OpenAI error: {e}. Falling back to Gemini...")
+            
+    if not response_text:
+        print("[AI] Using Gemini to generate document content...")
+        if not api_key:
+            raise HTTPException(status_code=500, detail="Gemini API key not configured and no OpenAI API key found")
+        try:
+            model = genai.GenerativeModel('gemini-2.5-flash', system_instruction=system_prompt)
+            response = model.generate_content(prompt)
+            response_text = response.text.strip()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Gemini API failure: {str(e)}")
+
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash')
-        response = model.generate_content(prompt)
-        return {"content": response.text}
+        # Clean response text in case it wrapped JSON
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.startswith("```"):
+            response_text = response_text[3:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        response_text = response_text.strip()
+        
+        parsed = json.loads(response_text)
+        return parsed
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[ERROR] Failed to parse generated JSON: {e}\nRaw content:\n{response_text}")
+        raise HTTPException(status_code=500, detail=f"Invalid JSON returned by AI model: {str(e)}")
 
 @app.post("/api/generate_ppt")
 async def generate_ppt_content(req: GeneratePptRequest):
-    if not api_key:
-        raise HTTPException(status_code=500, detail="Gemini API key not configured")
-    
-    prompt = f"""
-Create an outline for a presentation about '{req.topic}'.
-Output ONLY valid JSON containing an array of slides. Each slide object should have a "title" string and "bullets" array of strings. Do not include markdown codeblocks around the JSON.
-Example format:
-[
-  {{"title": "Introduction", "bullets": ["Point 1", "Point 2"]}},
-  {{"title": "Details", "bullets": ["A detail", "Another detail"]}}
-]
+    system_prompt = """You are a professional presentation architect similar to Gamma.
+
+Your task is to transform a user prompt into a complete presentation.
+
+Generate presentation-ready content.
+
+Requirements:
+- Clear slide hierarchy
+- Professional structure
+- Concise bullet points
+- Maximum 5 bullets per slide
+- Maximum 15 words per bullet
+- Logical flow
+- Include charts when appropriate
+- Include image recommendations
+- Include speaker notes
+
+Return valid JSON only."""
+
+    format_instruction = """
+Return ONLY a valid JSON object matching the following structure:
+{
+  "presentationTitle": "Title of the presentation",
+  "theme": "Modern Blue, Forest Green, Dark Mode Minimalist, Warm Terracotta, or Vibrant Sunset",
+  "slides": [
+    {
+      "slideNumber": 1,
+      "type": "One of: 'Title Slide', 'Content Slide', 'Two Column', 'Image Left', 'Image Right', 'Comparison', 'Timeline', 'Chart Slide', 'Conclusion Slide'",
+      "title": "Slide Title",
+      "subtitle": "Optional slide subtitle or category",
+      "content": ["Up to 5 concise bullet points"],
+      "speakerNotes": "Speaker notes for this slide",
+      "imagePrompt": "Detailed visual/image description for this slide",
+      "chartType": "One of: 'bar', 'line', 'pie', 'doughnut', or empty string"
+    }
+  ]
+}
+Do not include any other markdown text, formatting, or wraps like ```json.
 """
+
+    prompt = f"Create a structured presentation about: '{req.topic}' using the layout styles requested.\n\n{format_instruction}"
+
+    openai_key = os.getenv("OPENAI_API_KEY")
+    response_text = ""
+    
+    if openai_key:
+        print("[AI] Using OpenAI to generate presentation content...")
+        try:
+            headers = {
+                "Authorization": f"Bearer {openai_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "model": "gpt-4o",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt}
+                ],
+                "response_format": {"type": "json_object"}
+            }
+            res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+            if res.status_code == 200:
+                response_text = res.json()["choices"][0]["message"]["content"]
+            else:
+                print(f"[WARN] OpenAI returned error: {res.text}. Falling back to Gemini...")
+        except Exception as e:
+            print(f"[WARN] OpenAI error: {e}. Falling back to Gemini...")
+            
+    if not response_text:
+        print("[AI] Using Gemini to generate presentation content...")
+        if not api_key:
+            raise HTTPException(status_code=500, detail="Gemini API key not configured and no OpenAI API key found")
+        try:
+            model = genai.GenerativeModel('gemini-2.5-flash', system_instruction=system_prompt)
+            response = model.generate_content(prompt)
+            response_text = response.text.strip()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Gemini API failure: {str(e)}")
+
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash')
-        response = model.generate_content(prompt)
+        # Clean response text in case it wrapped JSON
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.startswith("```"):
+            response_text = response_text[3:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        response_text = response_text.strip()
         
-        text = response.text.strip()
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
-        
-        slides = json.loads(text)
-        return {"slides": slides}
+        parsed = json.loads(response_text)
+        return parsed
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[ERROR] Failed to parse generated JSON: {e}\nRaw content:\n{response_text}")
+        raise HTTPException(status_code=500, detail=f"Invalid JSON returned by AI model: {str(e)}")
 
 def enhance_input(text: str) -> str:
     return f"{text}, professional avatar, centered face"
@@ -195,48 +368,69 @@ async def generate_avatar(prompt: str, style: str = "realistic"):
 async def lawsask(req: LawsAskRequest):
     query = req.query.lower()
     
-    legal_keywords = [
-        "law", "crime", "ipc", "fraud", "murder", "rape", "theft", "hack", "cyber", "drugs", "police", "illegal", "punishment", "section", "act", "court"
-    ]
-    
-    if not any(k in query for k in legal_keywords):
-        return {"response": "This chatbot only answers Indian law and crime related queries."}
-        
     db = get_mongo_db()
     laws = list(db["laws"].find({}, {"_id": 0}))
     
-    if not laws:
-        return {"response": "No laws available in database."}
-
-    matches = []
-    
-    for law in laws:
-        search_str = f"{law.get('title', '')} {law.get('description', '')} {law.get('law', '')} {' '.join(law.get('keywords', []))}"
-        score = fuzz.token_set_ratio(query, search_str)
-        if score > 30:
-            matches.append({"law": law, "score": score})
+    context_text = ""
+    if laws:
+        matches = []
+        for law in laws:
+            search_str = f"{law.get('title', '')} {law.get('description', '')} {law.get('law', '')} {' '.join(law.get('keywords', []))}"
+            # Use both token_set_ratio and partial_ratio for better matching
+            score1 = fuzz.token_set_ratio(query, search_str)
+            score2 = fuzz.partial_ratio(query, search_str)
+            score = max(score1, score2)
             
-    if matches:
-        matches = sorted(matches, key=lambda x: x["score"], reverse=True)
-        top_matches = matches[:5]
+            if score > 25:
+                matches.append({"law": law, "score": score})
+                
+        if matches:
+            matches = sorted(matches, key=lambda x: x["score"], reverse=True)
+            top_matches = matches[:8] # Top 8 most relevant matches
+            
+            for match in top_matches:
+                law = match["law"]
+                punishment = law.get("punishment", {})
+                
+                # Handle varying punishment formats safely
+                p_type = punishment.get("type", [])
+                if isinstance(p_type, list):
+                    punishment_type = ", ".join(p_type)
+                else:
+                    punishment_type = str(p_type)
+                    
+                duration = punishment.get("duration", "")
+                punishment_str = f"{punishment_type} {duration}".strip()
+                    
+                context_text += f"- Law/Section: {law.get('law', '')} {law.get('section', '')}\n  Description: {law.get('description', '')}\n  Punishment: {punishment_str}\n\n"
+
+    if not api_key:
+        return {"response": "AI is currently offline (Gemini API key is missing). Please configure your API key to get smart legal answers."}
         
-        response_text = ""
-        for i, match in enumerate(top_matches):
-            law = match["law"]
-            punishment_type = ", ".join(law.get("punishment", {}).get("type", []))
-            duration = law.get("punishment", {}).get("duration", "")
-            punishment_str = f"{punishment_type}"
-            if duration:
-                punishment_str += f"\n{duration}"
-                
-            response_text += f"[LAW]: {law.get('law', '')}\n[SECTION]: {law.get('section', '')}\n\n[DESCRIPTION]:\n{law.get('description', '')}\n\n[PUNISHMENT]:\n{punishment_str}"
-            if i < len(top_matches) - 1:
-                response_text += "\n\n" + "-"*40 + "\n\n"
-                
-        response_text += "\n\n[NOTE]:\nThis is not legal advice."
-        return {"response": response_text}
-    else:
-        return {"response": "Could not find an exact law match for your query, but this is a legal topic. Please try with more specific terms."}
+    try:
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        prompt = f"""You are 'LawsAsk', an AI Indian legal assistant.
+
+User's Query: "{req.query}"
+
+Here is the most relevant data retrieved from the Indian law database based on the user's query:
+{context_text if context_text else "(No exact database matches found. Please rely on your general knowledge of Indian Law to answer.)"}
+
+Instructions:
+1. Answer the user's query clearly, professionally, and in an easy-to-understand way.
+2. Focus on using the provided database information if it is relevant. Cite the specific Law/Section.
+3. If the user's query is not related to law, crimes, or justice, politely decline to answer.
+4. Format your response cleanly (use bullet points or bold text where it helps readability).
+5. Always end your response with a short disclaimer indicating you are an AI and providing this information for educational purposes, not as formal legal advice.
+"""
+        response = model.generate_content(prompt)
+        return {"response": response.text}
+    except Exception as e:
+        # Fallback to plain text if API fails
+        if context_text:
+             return {"response": f"[AI Error: {str(e)}]\n\nHere are the raw database results instead:\n{context_text}"}
+        return {"response": f"Error connecting to AI and no laws matched: {str(e)}"}
 
 
 if __name__ == "__main__":

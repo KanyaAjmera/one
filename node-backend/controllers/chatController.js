@@ -76,6 +76,7 @@ RULES:
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'User-Agent': 'Mozilla/5.0'
                 },
                 body: JSON.stringify({
                     messages: [

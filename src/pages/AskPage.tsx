@@ -7,7 +7,7 @@ import { mockChats, aiResponses } from "@/components/chat/mockChatData";
 import type { Chat, Message } from "@/components/chat/mockChatData";
 import { useTheme } from "@/contexts/ThemeContext";
 import axios from "axios";
-import { NODE_API_URL } from "@/config";
+import { NODE_API_URL, PYTHON_API_URL } from "@/config";
 
 export default function AskPage() {
   const { isLightMode, setMode } = useTheme();
@@ -59,10 +59,10 @@ export default function AskPage() {
     // Generate AI response by calling backend
     let aiResponse = "";
     try {
-      const res = await axios.post(`${NODE_API_URL}/api/chat/ask`, {
-        message: userMessage,
+      const res = await axios.post(`${PYTHON_API_URL}/api/ask`, {
+        question: userMessage,
       });
-      aiResponse = res.data.response;
+      aiResponse = res.data.answer;
     } catch (error) {
       console.error("Error communicating with AI engine:", error);
       aiResponse = "[ANSWER]\nI'm sorry, I couldn't process your request at this time.\n\n[EXPLANATION]\nThere was an error communicating with the backend API.\n\n[SOURCE BASIS]\n- System Error";
