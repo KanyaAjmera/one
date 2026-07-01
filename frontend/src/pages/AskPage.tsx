@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import Sidebar from "@/components/chat/Sidebar";
 import ChatWindow from "@/components/chat/ChatWindow";
 import Navbar from "@/components/chat/Navbar";
@@ -11,7 +11,6 @@ import { NODE_API_URL, PYTHON_API_URL } from "@/config";
 
 export default function AskPage() {
   const { isLightMode, setMode } = useTheme();
-  const { user } = useAuth();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNavTab, setActiveNavTab] = useState("explore");
@@ -20,7 +19,7 @@ export default function AskPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
 
-  const { chats, activeChatId, setActiveChatId, createChat, addMessages, deleteChat } =
+  const { chats, activeChatId, setActiveChatId, createChat, addMessages } =
     useChatHistory("general");
 
   // Convert stored chats to Chat[] for Sidebar

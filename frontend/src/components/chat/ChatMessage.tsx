@@ -44,7 +44,7 @@ export default function ChatMessage({
             />
           </div>
         ) : (
-          <div className="prose prose-invert prose-sm max-w-none">
+          <div className={`prose prose-sm max-w-none ${isUser ? "prose-invert" : isLightMode ? "prose-neutral" : "prose-invert"}`}>
             <ReactMarkdown
               components={{
                 p: ({ node, ...props }) => (

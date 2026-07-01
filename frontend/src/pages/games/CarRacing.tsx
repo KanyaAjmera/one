@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, RotateCcw, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Play, RotateCcw, AlertCircle, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
 import AnoAI from '@/components/ui/animated-shader-background';
+import { useGameScores } from '@/hooks/useGameScores';
 
 export default function CarRacing() {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+  const { best, history, submitScore, resetScores } = useGameScores('car-racing');
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState(0);
+  const [showHistory, setShowHistory] = useState(false);
+  const [resetConfirm, setResetConfirm] = useState(false);
 
   // Game state refs for animation loop
   const gameState = useRef({
@@ -144,7 +147,7 @@ export default function CarRacing() {
         if (hitX && hitY) {
             setIsPlaying(false);
             setIsGameOver(true);
-            setHighScore(prev => Math.max(prev, state.score));
+            submitScore(state.score);
             return; // end loop early
         }
 
@@ -203,7 +206,9 @@ export default function CarRacing() {
           </div>
           <div className="flex items-center gap-4">
              <div className="text-lg bg-white/10 px-4 py-2 rounded-xl">Score: <span className="font-bold">{score}</span></div>
-             <div className="text-sm bg-yellow-500/20 text-yellow-500 px-3 py-2 rounded-xl border border-yellow-500/30">High: {highScore}</div>
+             <div className="text-sm bg-yellow-500/20 text-yellow-500 px-3 py-2 rounded-xl border border-yellow-500/30 flex items-center gap-1">
+               <Trophy className="w-4 h-4" /> Best: {best}
+             </div>
           </div>
         </header>
 
@@ -247,7 +252,7 @@ export default function CarRacing() {
                 )}
             </div>
 
-            {/* Mobile Controls mapping */}
+            {/* Mobile Controls */}
             {isPlaying && !isGameOver && (
                 <div className="mt-8 flex gap-8 md:hidden">
                     <button 
@@ -268,6 +273,29 @@ export default function CarRacing() {
                     </button>
                 </div>
             )}
+
+            {/* History + Reset */}
+            <div className="mt-6 w-full max-w-sm">
+              <div className="flex items-center justify-between mb-2">
+                <button onClick={() => setShowHistory(v => !v)} className="text-sm text-white/60 hover:text-white transition-colors">
+                  {showHistory ? 'Hide' : 'Show'} History ({history.length})
+                </button>
+                <button onClick={() => { if (resetConfirm) { resetScores(); setResetConfirm(false); } else { setResetConfirm(true); setTimeout(() => setResetConfirm(false), 3000); } }}
+                  className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg transition-all ${resetConfirm ? 'bg-red-500/30 text-red-400 border border-red-500/50' : 'bg-white/5 text-white/40 border border-white/10 hover:text-white/70'}`}>
+                  <RotateCcw className="w-3 h-3" /> {resetConfirm ? 'Confirm?' : 'Reset'}
+                </button>
+              </div>
+              {showHistory && history.length > 0 && (
+                <div className="space-y-1 max-h-32 overflow-y-auto bg-black/30 rounded-xl p-3">
+                  {history.slice(0, 8).map((e, i) => (
+                    <div key={i} className="flex justify-between text-xs">
+                      <span className="text-white/40">{new Date(e.date).toLocaleDateString()}</span>
+                      <span className={e.score === best ? 'text-yellow-400 font-bold' : 'text-white/60'}>{e.score} {e.score === best && '⭐'}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             
         </div>
       </div>

@@ -5,146 +5,87 @@ import Navbar from "@/components/chat/Navbar";
 import { useTheme } from "@/contexts/ThemeContext";
 import axios from "axios";
 import type { Chat, Message } from "@/components/chat/mockChatData";
+import { useChatHistory } from "@/hooks/useChatHistory";
 
-const initialLawsChats: Chat[] = [
-  {
-    id: "law-welcome-1",
-    title: "Welcome to Laws AI",
-    messages: [
-      {
-        id: "msg-1",
-        role: "assistant",
-        content:
-          "Hello. I am the Infinity Laws AI. How can I assist you with Indian legal information today?",
-      },
-    ],
-    timestamp: new Date(),
-    group: false,
-  },
-];
+const WELCOME_MSG: Message = {
+  id: "law-welcome",
+  role: "assistant",
+  content: "Hello. I am the Infinity Laws AI. I can help you understand Indian laws relevant to your situation. What would you like to know?",
+};
 
 export default function AiLawsPage() {
   const { isLightMode, setMode } = useTheme();
 
-  // UI State
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNavTab, setActiveNavTab] = useState("explore");
-  const [selectedModel, setSelectedModel] = useState("gpt-4");
-
-  // Chat State
-  const [_chats, setChats] = useState<Chat[]>(initialLawsChats);
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedModel, setSelectedModel] = useState("Gemini 2.0");
+  const [messages, setMessages] = useState<Message[]>([WELCOME_MSG]);
   const [isLoading, setIsLoading] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
 
-  // Handle sending messages
+  const { chats, activeChatId, setActiveChatId, createChat, addMessages } =
+    useChatHistory("law");
+
+  const sidebarChats: Chat[] = chats.map((c) => ({
+    id: c.id,
+    title: c.title,
+    messages: c.messages.map((m) => ({ id: m.id, role: m.role, content: m.content })),
+    timestamp: new Date(c.updatedAt),
+    group: false,
+  }));
+
   const handleSendMessage = async (userMessage: string) => {
     setShowWelcome(false);
 
-    // ✨ Switch Vibe & Light Mode Detect ✨
     const lowerMsg = userMessage.toLowerCase();
-    if (
-      lowerMsg.includes("light mode") ||
-      lowerMsg.includes("make it bright") ||
-      lowerMsg.includes("switch vibe")
-    ) {
-      setMode("light");
-      return;
-    }
+    if (lowerMsg.includes("light mode") || lowerMsg.includes("make it bright")) { setMode("light"); return; }
+    if (lowerMsg.includes("dark mode") || lowerMsg.includes("make it dark")) { setMode("dark"); return; }
 
-    if (lowerMsg.includes("dark mode") || lowerMsg.includes("make it dark")) {
-      setMode("default");
-      return;
-    }
-
-    // Add user message
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: userMessage,
-    };
-
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: userMessage };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
-    // Generate AI response by calling backend with mode: "law"
     let aiResponse = "";
     try {
       const { NODE_API_URL } = await import("../config");
-      const res = await axios.post(`${NODE_API_URL}/api/chat/ask`, {
-        message: userMessage,
-        mode: "law",
-      });
+      const res = await axios.post(`${NODE_API_URL}/api/chat/ask`, { message: userMessage, mode: "law" });
       aiResponse = res.data.response;
-    } catch (error) {
-      console.error("Error communicating with AI engine:", error);
-      aiResponse =
-        "[ANSWER]\nI'm sorry, I couldn't process your request at this time.\n\n[EXPLANATION]\nThere was an error communicating with the backend API.\n\n[SOURCE BASIS]\n- System Error";
+    } catch {
+      aiResponse = "Sorry, I couldn't reach the Laws AI engine. Please try again.";
     }
 
-    const aiMsg: Message = {
-      id: (Date.now() + 1).toString(),
-      role: "assistant",
-      content: aiResponse,
-    };
-
+    const aiMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: aiResponse };
     setMessages((prev) => [...prev, aiMsg]);
     setIsLoading(false);
 
-    // Save to active chat if one is selected, else create a new chat
-    if (activeChatId) {
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat.id === activeChatId
-            ? { ...chat, messages: [...chat.messages, userMsg, aiMsg] }
-            : chat,
-        ),
-      );
-    } else {
-      const newChatId = Date.now().toString();
-      const newChatTitle =
-        userMessage.slice(0, 25) + (userMessage.length > 25 ? "..." : "");
-      const newChat: Chat = {
-        id: newChatId,
-        title: newChatTitle,
-        messages: [userMsg, aiMsg],
-        timestamp: new Date(),
-        group: false,
-      };
-      setChats((prevChats) => [newChat, ...prevChats]);
-      setActiveChatId(newChatId);
+    // Persist to localStorage
+    let chatId = activeChatId;
+    if (!chatId) {
+      chatId = createChat(userMessage);
     }
+    addMessages(chatId,
+      { id: userMsg.id, role: "user", content: userMessage, timestamp: new Date().toISOString() },
+      { id: aiMsg.id, role: "assistant", content: aiResponse, timestamp: new Date().toISOString() }
+    );
   };
 
-  // Handle chat selection
   const handleSelectChat = (chat: Chat) => {
     setActiveChatId(chat.id);
-    setMessages(chat.messages);
+    setMessages(chat.messages.length > 0 ? chat.messages : [WELCOME_MSG]);
     setShowWelcome(false);
     setSidebarOpen(false);
   };
 
-  // Handle new chat
   const handleNewChat = () => {
     setActiveChatId(null);
-    setMessages([]);
+    setMessages([WELCOME_MSG]);
     setShowWelcome(true);
     setSidebarOpen(false);
   };
 
-  // Handle welcome suggestion click
-  const handleWelcomeSuggestion = (suggestion: string) => {
-    handleSendMessage(suggestion);
-  };
-
   return (
-    <div
-      className={`flex h-screen w-screen relative overflow-hidden transition-colors duration-1000 ${isLightMode ? "bg-white/0" : "bg-black/0"}`}
-    >
-      {/* Content Layer */}
+    <div className={`flex h-screen w-screen relative overflow-hidden transition-colors duration-1000 ${isLightMode ? "bg-white/0" : "bg-black/0"}`}>
       <div className="relative z-10 flex w-full h-full max-h-screen">
-        {/* Sidebar */}
         <Sidebar
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -153,31 +94,22 @@ export default function AiLawsPage() {
           activeNavTab={activeNavTab}
           onNavTabChange={setActiveNavTab}
           activeChatId={activeChatId}
-          chats={_chats}
+          chats={sidebarChats}
         />
-
-        {/* Main Chat Area */}
-        <div
-          className={`flex-1 flex flex-col backdrop-blur-sm transition-colors duration-500 ${isLightMode ? "bg-white/30" : "bg-gray-950/60"}`}
-        >
-          {/* Navbar */}
+        <div className={`flex-1 flex flex-col backdrop-blur-sm transition-colors duration-500 ${isLightMode ? "bg-white/30" : "bg-gray-950/60"}`}>
           <Navbar
             onMenuClick={() => setSidebarOpen(!sidebarOpen)}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
             isLightMode={isLightMode}
-            onToggleTheme={() => {
-              setMode(isLightMode ? "default" : "light");
-            }}
+            onToggleTheme={() => setMode(isLightMode ? "dark" : "light")}
           />
-
-          {/* Chat Window */}
           <ChatWindow
             messages={messages}
             isLoading={isLoading}
             onSendMessage={handleSendMessage}
             showWelcome={showWelcome}
-            onWelcomeSelect={handleWelcomeSuggestion}
+            onWelcomeSelect={handleSendMessage}
             isLightMode={isLightMode}
           />
         </div>

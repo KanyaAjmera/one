@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Trophy, RotateCcw } from 'lucide-react';
 import AnoAI from '@/components/ui/animated-shader-background';
+import { useGameScores } from '@/hooks/useGameScores';
 
 export default function TicTacToe() {
   const navigate = useNavigate();
+  const { best, history, submitScore, resetScores } = useGameScores('tic-tac-toe');
   const [board, setBoard] = useState<(string | null)[]>(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
+  const [resetConfirm, setResetConfirm] = useState(false);
 
   const calculateWinner = (squares: (string | null)[]) => {
     const lines = [
@@ -23,17 +27,27 @@ export default function TicTacToe() {
     return null;
   };
 
+  const winData = calculateWinner(board);
+  const winner = winData?.winner;
+  const isDraw = !winner && board.every(square => square !== null);
+
+  // Submit score when game ends
   const handleClick = (i: number) => {
     if (calculateWinner(board) || board[i]) return;
     const newBoard = [...board];
     newBoard[i] = xIsNext ? 'X' : 'O';
     setBoard(newBoard);
     setXIsNext(!xIsNext);
+    // Check if this move wins
+    const result = calculateWinner(newBoard);
+    if (result) submitScore(100); // Win = 100 points
+    else if (newBoard.every(s => s !== null)) submitScore(50); // Draw = 50 points
   };
 
-  const winData = calculateWinner(board);
-  const winner = winData?.winner;
-  const isDraw = !winner && board.every(square => square !== null);
+  const handleReset = () => {
+    if (resetConfirm) { resetScores(); setResetConfirm(false); }
+    else { setResetConfirm(true); setTimeout(() => setResetConfirm(false), 3000); }
+  };
 
   return (
     <div className="w-full min-h-screen text-foreground p-4 md:p-8 relative flex flex-col">
@@ -47,6 +61,13 @@ export default function TicTacToe() {
         </header>
 
         <div className="flex-1 bg-black/40 backdrop-blur-md rounded-3xl border border-white/10 p-8 flex flex-col items-center justify-center shadow-2xl">
+
+            {/* Best score */}
+            <div className="flex items-center gap-2 mb-6 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+              <Trophy className="w-4 h-4 text-yellow-400" />
+              <span className="text-yellow-400 text-sm font-medium">Best: {best}</span>
+              <span className="text-white/30 text-xs ml-2">({history.length} games)</span>
+            </div>
             
             <div className="mb-8 text-2xl font-bold min-h-[40px] flex items-center justify-center">
                 {winner ? (
@@ -99,6 +120,29 @@ export default function TicTacToe() {
                 <RefreshCw className={`w-5 h-5 ${winner || isDraw ? 'animate-spin-slow' : ''}`} />
                 {winner || isDraw ? 'Play Again' : 'Restart Game'}
             </button>
+
+            {/* History + Reset */}
+            <div className="mt-6 w-full max-w-sm">
+              <div className="flex items-center justify-between">
+                <button onClick={() => setShowHistory(v => !v)} className="text-sm text-white/50 hover:text-white transition-colors">
+                  {showHistory ? 'Hide' : 'Show'} History
+                </button>
+                <button onClick={handleReset}
+                  className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg transition-all ${resetConfirm ? 'bg-red-500/30 text-red-400 border border-red-500/50' : 'bg-white/5 text-white/40 border border-white/10 hover:text-white/70'}`}>
+                  <RotateCcw className="w-3 h-3" /> {resetConfirm ? 'Confirm?' : 'Reset'}
+                </button>
+              </div>
+              {showHistory && history.length > 0 && (
+                <div className="mt-2 space-y-1 max-h-24 overflow-y-auto bg-black/20 rounded-xl p-2">
+                  {history.slice(0, 6).map((e, i) => (
+                    <div key={i} className="flex justify-between text-xs">
+                      <span className="text-white/40">{new Date(e.date).toLocaleDateString()}</span>
+                      <span className={e.score === best ? 'text-yellow-400' : 'text-white/60'}>{e.score === 100 ? 'Win ⭐' : 'Draw'}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
         </div>
       </div>
     </div>

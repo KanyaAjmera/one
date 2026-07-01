@@ -5,6 +5,8 @@ interface RetroGridProps {
   showScanlines?: boolean;
   glowEffect?: boolean;
   className?: string;
+  transparent?: boolean;
+  isLightMode?: boolean;
 }
 
 function RetroGrid({
@@ -13,7 +15,8 @@ function RetroGrid({
   glowEffect = true,
   className = "",
   transparent = false,
-}: RetroGridProps & { transparent?: boolean }) {
+  isLightMode = false,
+}: RetroGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -91,7 +94,13 @@ function RetroGrid({
       }
 
       ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = gridColor;
+      if (isLightMode) {
+        const colVal = Math.round(x / cellWidth);
+        const isMajor = colVal % 2 === 0;
+        ctx.strokeStyle = isMajor ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.35)";
+      } else {
+        ctx.strokeStyle = gridColor;
+      }
       ctx.globalAlpha = alpha;
 
       ctx.beginPath();
@@ -153,20 +162,22 @@ function RetroGrid({
         }
       }
 
-      drawScanlines();
+      if (!isLightMode) {
+        drawScanlines();
 
-      const vignette = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        canvas.height * 0.3,
-        canvas.width / 2,
-        canvas.height / 2,
-        canvas.height * 0.8
-      );
-      vignette.addColorStop(0, "rgba(0,0,0,0)");
-      vignette.addColorStop(1, "rgba(0,0,0,0.5)");
-      ctx.fillStyle = vignette;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const vignette = ctx.createRadialGradient(
+          canvas.width / 2,
+          canvas.height / 2,
+          canvas.height * 0.3,
+          canvas.width / 2,
+          canvas.height / 2,
+          canvas.height * 0.8
+        );
+        vignette.addColorStop(0, "rgba(0,0,0,0)");
+        vignette.addColorStop(1, "rgba(0,0,0,0.5)");
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
       if (canvas) {
           requestAnimationFrame(animate);
@@ -179,7 +190,7 @@ function RetroGrid({
       window.removeEventListener("resize", resizeCanvas);
       cancelAnimationFrame(animationId);
     };
-  }, [gridColor, showScanlines, glowEffect, transparent]);
+  }, [gridColor, showScanlines, glowEffect, transparent, isLightMode]);
 
   return (
     <canvas

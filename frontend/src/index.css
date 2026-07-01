@@ -110,3 +110,10 @@
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: rgb(75, 85, 99);
 }
+
+.theme-transition {
+  transition: background-color 0.4s ease,
+              color 0.4s ease,
+              border-color 0.4s ease,
+              box-shadow 0.4s ease;
+}

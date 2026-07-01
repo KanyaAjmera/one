@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"cd node-backend && npm run dev\"",
+    "dev": "concurrently \"vite\" \"cd ../node-backend && npm run dev\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -23,6 +23,8 @@
     "lucide-react": "^0.563.0",
     "motion": "^12.37.0",
     "ogl": "^1.0.11",
+    "part1": "file:..",
+    "posthog-js": "^1.257.0",
     "postprocessing": "^6.38.3",
     "pptxgenjs": "^4.0.1",
     "react": "^19.2.0",

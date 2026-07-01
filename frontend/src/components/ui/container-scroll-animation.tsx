@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { useScroll, useTransform, motion, MotionValue } from "framer-motion";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export const ContainerScroll = ({
   titleComponent,
@@ -76,17 +77,25 @@ export const Card = ({
   translate: MotionValue<number>;
   children: React.ReactNode;
 }) => {
+  const { isLightMode } = useTheme();
   return (
     <motion.div
       style={{
         rotateX: rotate,
         scale,
-        boxShadow:
-          "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
+        boxShadow: isLightMode
+          ? "0 0 #00000012, 0 9px 20px #0000000e, 0 37px 37px #0000000b, 0 84px 50px #00000006, 0 149px 60px #00000001, 0 233px 65px #00000000"
+          : "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
       }}
-      className="max-w-7xl -mt-12 mx-auto h-[30rem] md:h-[40rem] w-full border-4 border-[#6C6C6C] p-1 md:p-2 bg-black rounded-[30px] shadow-2xl relative z-10"
+      className={`max-w-7xl -mt-12 mx-auto h-[30rem] md:h-[40rem] w-full border-4 p-1 md:p-2 rounded-[30px] shadow-2xl relative z-10 transition-all duration-300 ${
+        isLightMode
+          ? "border-gray-200/80 bg-white/70 backdrop-blur-md"
+          : "border-[#6C6C6C] bg-black"
+      }`}
     >
-      <div className=" h-full w-full  overflow-hidden rounded-2xl bg-[#111] md:rounded-2xl p-1 md:p-1 ">
+      <div className={`h-full w-full overflow-hidden rounded-2xl md:rounded-2xl p-1 md:p-1 transition-colors duration-300 ${
+        isLightMode ? "bg-white/40" : "bg-[#111]"
+      }`}>
         {children}
       </div>
     </motion.div>

@@ -36,7 +36,7 @@ export default function AvatarCreator() {
     try {
       // First model loading might be slow, so we alert the user
       // Using fetch instead of setting img.src directly so we can detect errors and show loading states cleanly
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const baseUrl = import.meta.env.VITE_PYTHON_API_URL || '';
       const response = await fetch(`${baseUrl}/api/generate_avatar?prompt=${encodeURIComponent(prompt)}&style=${encodeURIComponent(style)}`);
       
       if (!response.ok) {
