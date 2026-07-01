@@ -1,54 +1,118 @@
 import os
 import json
-from fastapi import FastAPI, HTTPException, Response
+import hashlib
+import secrets
+import datetime
+from fastapi import FastAPI, HTTPException, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import google.generativeai as genai
+from typing import Optional
 import requests
-import io
 import sys
-from rapidfuzz import fuzz
 from dotenv import load_dotenv
+
 from config.mongodb import get_mongo_db, initialize_database
+from local_ai import general_chat, laws_chat, generate_pdf_content, generate_ppt_content
+from gemini_ai import gemini_chat, gemini_json, is_gemini_configured
+from groq_ai import groq_chat, groq_json, is_groq_configured
 
-# Load .env from parent directory with absolute path
-env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
-env_path = os.path.abspath(env_path)
-print(f"Loading .env from: {env_path}")
-print(f"File exists: {os.path.exists(env_path)}")
+# ── Load .env from parent directory ──────────────────────────────────────────
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
+print(f"Loading .env from: {env_path}  exists={os.path.exists(env_path)}")
 
-# Manual parsing of .env file
 if os.path.exists(env_path):
-    with open(env_path, 'r', encoding='utf-8-sig') as f:  # utf-8-sig removes BOM
+    with open(env_path, "r", encoding="utf-8-sig") as f:
         for line in f:
             line = line.strip()
-            if line and not line.startswith('#') and '=' in line:
-                key, value = line.split('=', 1)
+            if line and not line.startswith("#") and "=" in line:
+                key, value = line.split("=", 1)
                 os.environ[key.strip()] = value.strip()
-                print(f"Loaded {key.strip()}")
-else:
-    print("WARNING: .env file not found!")
 
 load_dotenv(dotenv_path=env_path, override=True)
 
-app = FastAPI()
+# ── System prompts ────────────────────────────────────────────────────────────
+SYSTEM_GENERAL = """You are Infinity AI — a knowledgeable, thorough assistant. Your answers must be:
 
-# Configure CORS based on environment
-import os as os_module
-is_production = os_module.getenv("ENVIRONMENT", "development") == "production"
+**FORMAT RULES (always follow):**
+- Use ## headers to organize sections
+- Use **bold** for key terms and important facts
+- Use bullet lists for enumerating items
+- Use numbered lists for steps or sequences
+- Use `code blocks` for any code, commands, or technical syntax
+
+**CONTENT RULES:**
+- Give COMPLETE, DETAILED answers — never cut short
+- Always explain the WHY, not just the WHAT
+- Include real-world examples wherever helpful
+- For factual questions: include statistics, dates, key names
+- For technical questions: include code examples, syntax, use cases
+- For conceptual questions: explain from basics then go deeper
+- End with a ## Key Takeaways section summarizing 3-5 bullet points
+
+**NEVER:**
+- Give one-liner answers to complex questions
+- Skip context or background information
+- Make up facts — say "I'm not certain" if unsure"""
+
+SYSTEM_LAWS = """You are Infinity Laws AI — an Indian legal reference assistant.
+
+For every query, respond in this exact format:
+
+**[LAW]** Name of the Act (e.g., IPC, IT Act 2000, POCSO Act)
+**[SECTION]** Section number and title
+**[EXPLANATION]** Clear, simple explanation in 2-3 sentences
+**[PUNISHMENT]** Imprisonment/fine if applicable
+**[COURT]** Which court handles this
+
+Rules:
+- Cover Indian law only
+- Show top 2-3 most relevant laws if multiple apply
+- Use plain, non-technical language
+- If query is unrelated to law, politely decline
+- Always end with: "*This is educational information only — not legal advice. Consult a qualified advocate for your situation.*" """
+
+# ── AI cascade: Gemini → Groq → Local ────────────────────────────────────────
+def smart_chat(system_prompt: str, user_message: str, mode: str = "general") -> str:
+    # 1. Try Gemini
+    result = gemini_chat(system_prompt, user_message)
+    if result:
+        return result
+
+    # 2. Try Groq
+    result = groq_chat(system_prompt, user_message)
+    if result:
+        return result
+
+    # 3. Local fallback
+    print("[AI] All cloud AI unavailable — using local fallback")
+    if mode == "law":
+        return laws_chat(user_message)
+    return general_chat(user_message)
+
+
+def smart_json(system_prompt: str, user_prompt: str) -> Optional[dict]:
+    result = gemini_json(system_prompt, user_prompt)
+    if result:
+        return result
+    result = groq_json(system_prompt, user_prompt)
+    if result:
+        return result
+    return None
+
+# ── App setup ─────────────────────────────────────────────────────────────────
+app = FastAPI(title="Infinity AI Backend", version="2.0.0")
 
 cors_origins = [
     "http://localhost:3000",
     "http://localhost:5173",
+    "http://localhost:5174",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
+    "https://infinity-frontend.vercel.app",
 ]
-
-if is_production:
-    cors_origins.extend([
-        "https://infinity-frontend.vercel.app",
-        "https://your-vercel-domain.vercel.app",
-    ])
+_frontend_url = os.getenv("FRONTEND_URL", "").strip()
+if _frontend_url and _frontend_url not in cors_origins:
+    cors_origins.insert(0, _frontend_url)
 
 app.add_middleware(
     CORSMiddleware,
@@ -63,18 +127,18 @@ async def startup_event():
     try:
         initialize_database()
     except Exception as e:
-        print(f"Error initializing database: {e}")
+        print(f"DB init error: {e}")
+    print(f"[OK] Gemini configured: {is_gemini_configured()}")
+    print(f"[OK] Groq configured:   {is_groq_configured()}")
 
-api_key = os.getenv("VITE_GEMINI_API_KEY")
-print(f"API Key loaded: {api_key[:20] if api_key else 'NOT FOUND'}...")
-if api_key:
-    genai.configure(api_key=api_key)
-    print(f"[OK] Gemini API configured successfully")
-else:
-    print("[WARN] Gemini API key not loaded - check .env file")
 
+# ── Request models ────────────────────────────────────────────────────────────
 class AskRequest(BaseModel):
     question: str
+
+class ChatAskRequest(BaseModel):
+    message: str
+    mode: Optional[str] = "general"
 
 class GeneratePdfRequest(BaseModel):
     topic: str
@@ -85,352 +149,337 @@ class GeneratePptRequest(BaseModel):
 class LawsAskRequest(BaseModel):
     query: str
 
+# Simple in-memory auth (for when Node backend is down)
+_users: dict = {}  # email -> {id, name, email, password_hash}
+_tokens: dict = {}  # token -> user_id
+
+class SignupRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+# ── Health ────────────────────────────────────────────────────────────────────
 @app.get("/health")
 async def health():
-    return {"status": "ok", "api_key_loaded": bool(api_key)}
+    return {
+        "status": "ok",
+        "gemini": is_gemini_configured(),
+        "groq": is_groq_configured(),
+    }
+
+
+# ── Chat endpoints (mirrors Node backend for fallback) ────────────────────────
+
+@app.post("/api/chat/ask")
+async def chat_ask(req: ChatAskRequest):
+    """Main AI chat endpoint — Gemini → Groq → local cascade"""
+    if not req.message or not req.message.strip():
+        raise HTTPException(status_code=400, detail="Message is required")
+
+    mode = req.mode or "general"
+    system_prompt = SYSTEM_LAWS if mode == "law" else SYSTEM_GENERAL
+
+    print(f"[Chat] mode={mode} gemini={is_gemini_configured()} | \"{req.message[:60]}\"")
+
+    response = smart_chat(system_prompt, req.message, mode)
+    return {"success": True, "response": response}
+
+
+@app.get("/api/chat/laws")
+async def get_laws():
+    """Return categorized Indian laws from dataset"""
+    dataset_paths = [
+        os.path.join(os.path.dirname(__file__), "..", "node-backend", "data", "laws_dataset.json"),
+        os.path.join(os.path.dirname(__file__), "data", "laws_dataset.json"),
+    ]
+    for path in dataset_paths:
+        path = os.path.abspath(path)
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    laws_data = json.load(f)
+                grouped: dict = {}
+                for law in laws_data:
+                    cat = law.get("category", "Other Offences")
+                    if cat not in grouped:
+                        grouped[cat] = []
+                    grouped[cat].append(law)
+                result = [{"category": cat, "laws": laws} for cat, laws in grouped.items()]
+                return {"success": True, "data": result}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Failed to load laws: {e}")
+    raise HTTPException(status_code=404, detail="laws_dataset.json not found")
+
+
+# ── Auth endpoints (fallback when Node backend is down) ───────────────────────
+
+def _hash_password(password: str) -> str:
+    import hashlib
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def _make_token() -> str:
+    return secrets.token_hex(32)
+
+@app.post("/api/auth/signup")
+async def auth_signup(req: SignupRequest):
+    if req.email in _users:
+        raise HTTPException(status_code=400, detail="User already exists")
+    user_id = secrets.token_hex(8)
+    _users[req.email] = {
+        "id": user_id,
+        "name": req.name,
+        "email": req.email,
+        "password_hash": _hash_password(req.password),
+    }
+    token = _make_token()
+    _tokens[token] = req.email
+    return {
+        "success": True,
+        "token": token,
+        "user": {"id": user_id, "name": req.name, "email": req.email},
+    }
+
+@app.post("/api/auth/login")
+async def auth_login(req: LoginRequest):
+    user = _users.get(req.email)
+    if not user or user["password_hash"] != _hash_password(req.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    token = _make_token()
+    _tokens[token] = req.email
+    return {
+        "success": True,
+        "token": token,
+        "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
+    }
+
+@app.get("/api/auth/profile")
+async def auth_profile(authorization: Optional[str] = None):
+    # Accept token from Authorization header
+    raise HTTPException(status_code=501, detail="Use Node backend for full auth")
+
+@app.get("/api/game/stats")
+async def game_stats():
+    # Stub — actual stats are in Node backend with MongoDB
+    return {"success": True, "data": {"currentStreak": 0, "totalGamesPlayed": 0, "lastPlayedDate": ""}}
+
+
+# ── Legacy /api/ask endpoint ──────────────────────────────────────────────────
 
 @app.post("/api/ask")
 async def ask_question(req: AskRequest):
-    if not api_key:
-        return {"answer": f"Offline Mode: Gemini API Key is missing.\n\nYou asked: '{req.question}'\n\nPlease add VITE_GEMINI_API_KEY to your .env file to enable the AI!"}
-    try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        response = model.generate_content(req.question)
-        return {"answer": response.text}
-    except Exception as e:
-        return {"answer": f"Offline Mode: Failed to connect to Gemini.\n\nYou asked: '{req.question}'\n\nError details: {str(e)}"}
+    answer = smart_chat(SYSTEM_GENERAL, req.question, "general")
+    return {"answer": answer}
 
-@app.post("/api/generate_pdf")
-async def generate_pdf_content(req: GeneratePdfRequest):
-    system_prompt = """You are an expert Presentation Architect, Report Writer, Research Analyst, Business Consultant, and Technical Documentation Specialist.
 
-Your job is to convert natural language prompts into complete professional presentations and documents.
+# ── Laws AI (POST) ────────────────────────────────────────────────────────────
 
-Automatically determine:
-- Structure
-- Sections
-- Flow
-- Visual hierarchy
-- Content organization
+@app.post("/api/lawsask")
+async def lawsask(req: LawsAskRequest):
+    response = smart_chat(SYSTEM_LAWS, req.query, "law")
+    return {"response": response}
 
-Generate professional, concise, high-quality content.
-Use logical progression.
-Avoid unnecessary filler.
-Generate presentation-ready and publication-ready output."""
 
-    format_instruction = """
-Return ONLY a valid JSON object matching the following structure:
+# ── PDF / PPT generation ──────────────────────────────────────────────────────
+
+_PDF_SYSTEM = '''Return ONLY a valid JSON object matching this structure (no markdown fences):
 {
-  "documentTitle": "Title of the Document",
-  "documentType": "One of: Research Paper, Project Report, Assignment, Whitepaper, Business Report, Study Notes, Technical Documentation",
-  "theme": "Modern Blue, Forest Green, Dark Mode Minimalist, Warm Terracotta, or Vibrant Sunset",
-  "executiveSummary": "A concise executive summary paragraph.",
-  "tableOfContents": [
-     "Section Title 1",
-     "Section Title 2"
-  ],
+  "documentTitle": "string",
+  "documentType": "Research Paper | Project Report | Whitepaper | Business Report | Technical Documentation",
+  "theme": "Modern Blue | Forest Green | Dark Mode Minimalist | Warm Terracotta | Vibrant Sunset",
+  "executiveSummary": "string",
+  "tableOfContents": ["string"],
   "sections": [
     {
-      "sectionTitle": "Section Title",
+      "sectionTitle": "string",
       "subsections": [
         {
-          "subsectionTitle": "Subsection Title",
-          "paragraphs": [
-            "Detailed paragraph content block...",
-            "Another detailed paragraph..."
-          ],
-          "table": {
-            "headers": ["Header A", "Header B"],
-            "rows": [
-              ["Value A1", "Value B1"],
-              ["Value A2", "Value B2"]
-            ]
-          },
-          "chart": {
-            "type": "bar",
-            "data": [
-              {"label": "Label A", "value": 30},
-              {"label": "Label B", "value": 70}
-            ]
-          }
+          "subsectionTitle": "string",
+          "paragraphs": ["string"],
+          "table": {"headers": ["string"], "rows": [["string"]]} ,
+          "chart": {"type": "bar|line|pie", "data": [{"label": "string", "value": 0}]}
         }
       ]
     }
   ],
-  "references": [
-    "Reference item 1",
-    "Reference item 2"
-  ]
-}
-Note: Leave the "table" or "chart" object null or empty if not appropriate for the subsection content. Do not include markdown codeblocks around the JSON.
-"""
+  "references": ["string"]
+}'''
 
-    prompt = f"Create a structured publication-ready document about: '{req.topic}' matching the document types requested.\n\n{format_instruction}"
-
-    openai_key = os.getenv("OPENAI_API_KEY")
-    response_text = ""
-    
-    if openai_key:
-        print("[AI] Using OpenAI to generate document content...")
-        try:
-            headers = {
-                "Authorization": f"Bearer {openai_key}",
-                "Content-Type": "application/json"
-            }
-            payload = {
-                "model": "gpt-4o",
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
-                "response_format": {"type": "json_object"}
-            }
-            res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-            if res.status_code == 200:
-                response_text = res.json()["choices"][0]["message"]["content"]
-            else:
-                print(f"[WARN] OpenAI returned error: {res.text}. Falling back to Gemini...")
-        except Exception as e:
-            print(f"[WARN] OpenAI error: {e}. Falling back to Gemini...")
-            
-    if not response_text:
-        print("[AI] Using Gemini to generate document content...")
-        if not api_key:
-            raise HTTPException(status_code=500, detail="Gemini API key not configured and no OpenAI API key found")
-        try:
-            model = genai.GenerativeModel('gemini-2.5-flash', system_instruction=system_prompt)
-            response = model.generate_content(prompt)
-            response_text = response.text.strip()
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Gemini API failure: {str(e)}")
-
-    try:
-        # Clean response text in case it wrapped JSON
-        if response_text.startswith("```json"):
-            response_text = response_text[7:]
-        if response_text.startswith("```"):
-            response_text = response_text[3:]
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
-        response_text = response_text.strip()
-        
-        parsed = json.loads(response_text)
-        return parsed
-    except Exception as e:
-        print(f"[ERROR] Failed to parse generated JSON: {e}\nRaw content:\n{response_text}")
-        raise HTTPException(status_code=500, detail=f"Invalid JSON returned by AI model: {str(e)}")
-
-@app.post("/api/generate_ppt")
-async def generate_ppt_content(req: GeneratePptRequest):
-    system_prompt = """You are a professional presentation architect similar to Gamma.
-
-Your task is to transform a user prompt into a complete presentation.
-
-Generate presentation-ready content.
-
-Requirements:
-- Clear slide hierarchy
-- Professional structure
-- Concise bullet points
-- Maximum 5 bullets per slide
-- Maximum 15 words per bullet
-- Logical flow
-- Include charts when appropriate
-- Include image recommendations
-- Include speaker notes
-
-Return valid JSON only."""
-
-    format_instruction = """
-Return ONLY a valid JSON object matching the following structure:
+_PPT_SYSTEM = '''Return ONLY a valid JSON object matching this structure (no markdown fences):
 {
-  "presentationTitle": "Title of the presentation",
-  "theme": "Modern Blue, Forest Green, Dark Mode Minimalist, Warm Terracotta, or Vibrant Sunset",
+  "presentationTitle": "string",
+  "theme": "Modern Blue | Forest Green | Dark Mode Minimalist | Warm Terracotta | Vibrant Sunset",
   "slides": [
     {
       "slideNumber": 1,
-      "type": "One of: 'Title Slide', 'Content Slide', 'Two Column', 'Image Left', 'Image Right', 'Comparison', 'Timeline', 'Chart Slide', 'Conclusion Slide'",
-      "title": "Slide Title",
-      "subtitle": "Optional slide subtitle or category",
-      "content": ["Up to 5 concise bullet points"],
-      "speakerNotes": "Speaker notes for this slide",
-      "imagePrompt": "Detailed visual/image description for this slide",
-      "chartType": "One of: 'bar', 'line', 'pie', 'doughnut', or empty string"
+      "type": "Title Slide | Content Slide | Two Column | Image Left | Comparison | Timeline | Chart Slide | Conclusion Slide",
+      "title": "string",
+      "subtitle": "string",
+      "content": ["string"],
+      "speakerNotes": "string",
+      "imagePrompt": "string",
+      "chartType": "bar | line | pie | doughnut | "
     }
   ]
 }
-Do not include any other markdown text, formatting, or wraps like ```json.
-"""
+Generate 10-12 slides.'''
 
-    prompt = f"Create a structured presentation about: '{req.topic}' using the layout styles requested.\n\n{format_instruction}"
 
-    openai_key = os.getenv("OPENAI_API_KEY")
-    response_text = ""
-    
-    if openai_key:
-        print("[AI] Using OpenAI to generate presentation content...")
-        try:
-            headers = {
-                "Authorization": f"Bearer {openai_key}",
-                "Content-Type": "application/json"
-            }
-            payload = {
-                "model": "gpt-4o",
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
-                "response_format": {"type": "json_object"}
-            }
-            res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-            if res.status_code == 200:
-                response_text = res.json()["choices"][0]["message"]["content"]
-            else:
-                print(f"[WARN] OpenAI returned error: {res.text}. Falling back to Gemini...")
-        except Exception as e:
-            print(f"[WARN] OpenAI error: {e}. Falling back to Gemini...")
-            
-    if not response_text:
-        print("[AI] Using Gemini to generate presentation content...")
-        if not api_key:
-            raise HTTPException(status_code=500, detail="Gemini API key not configured and no OpenAI API key found")
-        try:
-            model = genai.GenerativeModel('gemini-2.5-flash', system_instruction=system_prompt)
-            response = model.generate_content(prompt)
-            response_text = response.text.strip()
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Gemini API failure: {str(e)}")
+@app.post("/api/generate_pdf")
+async def generate_pdf_endpoint(req: GeneratePdfRequest):
+    # Try AI-enhanced content first
+    ai_result = smart_json(_PDF_SYSTEM, f"Generate a comprehensive PDF document about: {req.topic}")
+    if ai_result:
+        return ai_result
+    # Fall back to local template
+    return generate_pdf_content(req.topic)
 
-    try:
-        # Clean response text in case it wrapped JSON
-        if response_text.startswith("```json"):
-            response_text = response_text[7:]
-        if response_text.startswith("```"):
-            response_text = response_text[3:]
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
-        response_text = response_text.strip()
-        
-        parsed = json.loads(response_text)
-        return parsed
-    except Exception as e:
-        print(f"[ERROR] Failed to parse generated JSON: {e}\nRaw content:\n{response_text}")
-        raise HTTPException(status_code=500, detail=f"Invalid JSON returned by AI model: {str(e)}")
 
-def enhance_input(text: str) -> str:
-    return f"{text}, professional avatar, centered face"
+@app.post("/api/generate_ppt")
+async def generate_ppt_endpoint(req: GeneratePptRequest):
+    ai_result = smart_json(_PPT_SYSTEM, f"Generate a comprehensive presentation about: {req.topic}")
+    if ai_result:
+        return ai_result
+    return generate_ppt_content(req.topic)
 
-def build_avatar_prompt(user_input: str, style: str) -> str:
-    enhanced_input = enhance_input(user_input)
-    base = f"A centered profile avatar of {enhanced_input}, symmetrical face, clean background, sharp focus"
+
+# ── Avatar generation ─────────────────────────────────────────────────────────
+
+def enhance_prompt_ai(description: str, style: str) -> dict:
+    title = f"{style.capitalize()} {description} Avatar"
+    global_reqs = "centered composition, head and shoulders framing, premium profile picture quality, sharp facial details, balanced lighting, clean background, high resolution, professional quality"
 
     if style == "anime":
-        base += ", anime style, vibrant colors, studio lighting"
+        enhanced = f"A centered anime character profile picture of {description}, masterpiece anime artwork, modern anime aesthetic, detailed expressive eyes, vibrant colors, detailed hair, polished illustration, cinematic lighting, {global_reqs}"
+        negative = "blurry, low quality, bad anatomy, distorted face, extra limbs, watermark, text, cropped face"
     elif style == "realistic":
-        base += ", ultra realistic, DSLR, 85mm lens, natural skin tones"
-    elif style == "3d":
-        base += ", 3D render, octane render, soft lighting"
+        enhanced = f"A centered realistic portrait avatar of {description}, ultra realistic portrait, DSLR quality photography, cinematic lighting, realistic skin texture, natural color grading, shallow depth of field, {global_reqs}"
+        negative = "blurry, low quality, distorted face, bad proportions, extra limbs, watermark, text"
+    else:
+        enhanced = f"A centered 3D render avatar of {description}, Pixar-quality rendering, AAA game character quality, realistic materials, global illumination, studio lighting, {global_reqs}"
+        negative = "low poly, blurry, bad topology, poor textures, distorted face, extra limbs, watermark, text"
 
-    return base
+    return {"title": title, "style": style, "enhancedPrompt": enhanced, "negativePrompt": negative}
 
-def generate_avatar_image(prompt: str) -> bytes:
-    API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large"
-    hf_token = os.getenv("HUGGINGFACE_API_KEY")
-    if not hf_token:
-        raise Exception("Hugging Face API key not configured")
-    
-    API_URL_SD2 = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2"
-    HEADERS = {"Authorization": f"Bearer {hf_token}"}
-    negative = "blurry, low quality, distorted face, bad anatomy"
-    
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-            "negative_prompt": negative
-        }
-    }
-    response = requests.post(API_URL_SD2, headers=HEADERS, json=payload)
-    if response.status_code != 200:
-        raise Exception(f"API Error: {response.text}")
-    
-    return response.content
+
+def generate_programmatic_svg(prompt: str, style: str) -> bytes:
+    h = hashlib.md5(prompt.encode("utf-8")).hexdigest()
+    val1 = int(h[0:4], 16)
+    val2 = int(h[4:8], 16)
+    val3 = int(h[8:12], 16)
+
+    palettes = [
+        {"primary": "#8B5CF6", "secondary": "#EC4899", "accent": "#FBBF24", "bgStart": "#2E1065", "bgEnd": "#0F052D"},
+        {"primary": "#3B82F6", "secondary": "#1D4ED8", "accent": "#60A5FA", "bgStart": "#1E3A8A", "bgEnd": "#0F172A"},
+        {"primary": "#06B6D4", "secondary": "#3B82F6", "accent": "#10B981", "bgStart": "#083344", "bgEnd": "#021520"},
+        {"primary": "#10B981", "secondary": "#84CC16", "accent": "#F59E0B", "bgStart": "#064E3B", "bgEnd": "#022C22"},
+        {"primary": "#F97316", "secondary": "#EF4444", "accent": "#FBBF24", "bgStart": "#431407", "bgEnd": "#0C0402"},
+        {"primary": "#F59E0B", "secondary": "#D97706", "accent": "#FCD34D", "bgStart": "#3C2005", "bgEnd": "#0F0800"},
+        {"primary": "#EC4899", "secondary": "#F43F5E", "accent": "#A855F7", "bgStart": "#500724", "bgEnd": "#1C000B"},
+        {"primary": "#64748B", "secondary": "#1E293B", "accent": "#EF4444", "bgStart": "#0F172A", "bgEnd": "#020617"},
+        {"primary": "#EF4444", "secondary": "#B91C1C", "accent": "#3B82F6", "bgStart": "#450A0A", "bgEnd": "#150202"},
+        {"primary": "#6366F1", "secondary": "#A855F7", "accent": "#F43F5E", "bgStart": "#1E1B4B", "bgEnd": "#090514"},
+    ]
+
+    words = set(prompt.lower().split())
+    is_dev = any(w in words for w in ["dev", "developer", "code", "coder", "tech", "engineer"])
+    is_cyber = any(w in words for w in ["cyber", "space", "robot", "futuristic", "sci"])
+    is_nature = any(w in words for w in ["nature", "forest", "elf", "green", "tree"])
+    is_magic = any(w in words for w in ["wizard", "magic", "witch", "star", "sorcerer"])
+    is_warrior = any(w in words for w in ["ninja", "warrior", "samurai", "shadow", "sword"])
+
+    if is_dev:
+        pidx = val1 % 3  # cyan/blue tones
+    elif is_cyber:
+        pidx = (val1 % 4) + 1
+    elif is_nature:
+        pidx = 3
+    elif is_magic:
+        pidx = (val1 % 2)  # purple/indigo
+    elif is_warrior:
+        pidx = 7
+    else:
+        pidx = val1 % len(palettes)
+
+    p = palettes[pidx]
+    pr, sec, acc = p["primary"], p["secondary"], p["accent"]
+    bg_s, bg_e = p["bgStart"], p["bgEnd"]
+
+    decorations_list = ["tech_grid", "stars", "geometric", "digital_rain", "target"]
+    dec = decorations_list[val2 % len(decorations_list)]
+
+    if dec == "tech_grid":
+        decor = f'<g opacity="0.08"><path d="M 0,100 L 1024,100 M 0,200 L 1024,200 M 0,300 L 1024,300 M 0,600 L 1024,600 M 0,800 L 1024,800" stroke="#FFF" stroke-width="2"/><path d="M 100,0 L 100,1024 M 300,0 L 300,1024 M 700,0 L 700,1024 M 900,0 L 900,1024" stroke="#FFF" stroke-width="2"/></g>'
+    elif dec == "stars":
+        decor = f'<circle cx="200" cy="180" r="4" fill="{acc}" opacity="0.7"/><circle cx="800" cy="150" r="6" fill="{acc}" opacity="0.5"/><circle cx="150" cy="700" r="3" fill="#FFF" opacity="0.4"/><circle cx="880" cy="780" r="5" fill="#FFF" opacity="0.3"/>'
+    elif dec == "geometric":
+        decor = f'<circle cx="512" cy="512" r="440" stroke="#FFF" stroke-width="1.5" fill="none" opacity="0.1"/><circle cx="512" cy="512" r="380" stroke="{pr}" stroke-width="4" stroke-dasharray="20,10" fill="none" opacity="0.2"/>'
+    elif dec == "digital_rain":
+        decor = f'<g fill="{acc}" opacity="0.2" font-family="monospace" font-size="18"><text x="100" y="150">0</text><text x="100" y="178">1</text><text x="800" y="120">1</text><text x="800" y="148">0</text><text x="900" y="300">1</text></g>'
+    else:
+        decor = f'<path d="M80,80 L120,80 M80,80 L80,120" stroke="#FFF" stroke-width="3" fill="none" opacity="0.3"/><path d="M944,80 L904,80 M944,80 L944,120" stroke="#FFF" stroke-width="3" fill="none" opacity="0.3"/>'
+
+    syms = ["code", "gear", "shield", "crown", "star", "globe", "heart", "flame"]
+    sym = syms[val3 % len(syms)]
+
+    body_base = f'<path d="M280,820 C280,680 370,640 512,640 C654,640 744,680 744,820 Z" fill="url(#primaryGrad)"/><circle cx="512" cy="450" r="130" fill="url(#secondaryGrad)"/>'
+
+    if sym == "code":
+        subject = f'{body_base}<text x="290" y="540" font-family="monospace" font-size="120" font-weight="bold" fill="{acc}" opacity="0.2">&lt;</text><text x="720" y="540" font-family="monospace" font-size="120" font-weight="bold" fill="{acc}" opacity="0.2">&gt;</text>'
+    elif sym == "gear":
+        subject = f'{body_base}<g transform="translate(512,450)" fill="{acc}"><circle cx="0" cy="0" r="50"/><circle cx="0" cy="0" r="20" fill="url(#secondaryGrad)"/><rect x="-12" y="-60" width="24" height="120" rx="4"/><rect x="-60" y="-12" width="120" height="24" rx="4"/></g>'
+    elif sym == "shield":
+        subject = f'{body_base}<path d="M452,380 L572,380 L572,430 Q572,490 512,510 Q452,490 452,430 Z" fill="{acc}" opacity="0.9"/>'
+    elif sym == "crown":
+        subject = f'{body_base}<polygon points="412,380 442,430 512,370 582,430 612,380 592,450 432,450" fill="{acc}"/><circle cx="512" cy="370" r="6" fill="#FFF"/>'
+    elif sym == "globe":
+        subject = f'{body_base}<circle cx="512" cy="450" r="65" stroke="{acc}" stroke-width="3" fill="none" opacity="0.9"/><ellipse cx="512" cy="450" rx="65" ry="22" stroke="{acc}" stroke-width="2" fill="none" opacity="0.9"/><ellipse cx="512" cy="450" rx="22" ry="65" stroke="{acc}" stroke-width="2" fill="none" opacity="0.9"/>'
+    elif sym == "heart":
+        subject = f'{body_base}<path d="M512,490 C512,490 442,440 442,390 C442,350 472,330 512,370 C552,330 582,350 582,390 C582,440 512,490 512,490 Z" fill="{acc}"/>'
+    elif sym == "flame":
+        subject = f'{body_base}<path d="M512,360 C552,400 552,440 512,510 C472,440 472,400 512,360 Z" fill="{acc}"/><path d="M512,390 C537,420 537,445 512,490 C487,445 487,420 512,390 Z" fill="#F59E0B"/>'
+    else:
+        subject = f'{body_base}<polygon points="512,300 532,360 592,360 545,395 562,455 512,420 462,455 479,395 432,360 492,360" fill="{acc}" opacity="0.8"/>'
+
+    svg = f"""<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="{bg_s}"/>
+      <stop offset="100%" stop-color="{bg_e}"/>
+    </radialGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="{pr}"/>
+      <stop offset="100%" stop-color="{sec}"/>
+    </linearGradient>
+    <linearGradient id="secondaryGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="{sec}" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="{acc}" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bgGrad)"/>
+  {decor}
+  {subject}
+  <rect x="20" y="20" width="984" height="984" rx="20" stroke="{pr}" stroke-width="4" stroke-opacity="0.2" fill="none"/>
+</svg>"""
+    return svg.encode("utf-8")
+
 
 @app.get("/api/generate_avatar")
 async def generate_avatar(prompt: str, style: str = "realistic"):
     try:
-        final_prompt = build_avatar_prompt(prompt, style)
-        image_bytes = generate_avatar_image(final_prompt)
-        return Response(content=image_bytes, media_type="image/png")
+        enhanced = enhance_prompt_ai(prompt, style)
+        svg_bytes = generate_programmatic_svg(enhanced["enhancedPrompt"], style)
+        return Response(content=svg_bytes, media_type="image/svg+xml")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/api/lawsask")
-async def lawsask(req: LawsAskRequest):
-    query = req.query.lower()
-    
-    db = get_mongo_db()
-    laws = list(db["laws"].find({}, {"_id": 0}))
-    
-    context_text = ""
-    if laws:
-        matches = []
-        for law in laws:
-            search_str = f"{law.get('title', '')} {law.get('description', '')} {law.get('law', '')} {' '.join(law.get('keywords', []))}"
-            # Use both token_set_ratio and partial_ratio for better matching
-            score1 = fuzz.token_set_ratio(query, search_str)
-            score2 = fuzz.partial_ratio(query, search_str)
-            score = max(score1, score2)
-            
-            if score > 25:
-                matches.append({"law": law, "score": score})
-                
-        if matches:
-            matches = sorted(matches, key=lambda x: x["score"], reverse=True)
-            top_matches = matches[:8] # Top 8 most relevant matches
-            
-            for match in top_matches:
-                law = match["law"]
-                punishment = law.get("punishment", {})
-                
-                # Handle varying punishment formats safely
-                p_type = punishment.get("type", [])
-                if isinstance(p_type, list):
-                    punishment_type = ", ".join(p_type)
-                else:
-                    punishment_type = str(p_type)
-                    
-                duration = punishment.get("duration", "")
-                punishment_str = f"{punishment_type} {duration}".strip()
-                    
-                context_text += f"- Law/Section: {law.get('law', '')} {law.get('section', '')}\n  Description: {law.get('description', '')}\n  Punishment: {punishment_str}\n\n"
-
-    if not api_key:
-        return {"response": "AI is currently offline (Gemini API key is missing). Please configure your API key to get smart legal answers."}
-        
-    try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        
-        prompt = f"""You are 'LawsAsk', an AI Indian legal assistant.
-
-User's Query: "{req.query}"
-
-Here is the most relevant data retrieved from the Indian law database based on the user's query:
-{context_text if context_text else "(No exact database matches found. Please rely on your general knowledge of Indian Law to answer.)"}
-
-Instructions:
-1. Answer the user's query clearly, professionally, and in an easy-to-understand way.
-2. Focus on using the provided database information if it is relevant. Cite the specific Law/Section.
-3. If the user's query is not related to law, crimes, or justice, politely decline to answer.
-4. Format your response cleanly (use bullet points or bold text where it helps readability).
-5. Always end your response with a short disclaimer indicating you are an AI and providing this information for educational purposes, not as formal legal advice.
-"""
-        response = model.generate_content(prompt)
-        return {"response": response.text}
-    except Exception as e:
-        # Fallback to plain text if API fails
-        if context_text:
-             return {"response": f"[AI Error: {str(e)}]\n\nHere are the raw database results instead:\n{context_text}"}
-        return {"response": f"Error connecting to AI and no laws matched: {str(e)}"}
 
 
 if __name__ == "__main__":

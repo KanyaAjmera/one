@@ -42,7 +42,7 @@ export default function AskPage() {
     }
 
     if (lowerMsg.includes("dark mode") || lowerMsg.includes("make it dark")) {
-      setMode("default");
+      setMode("dark");
       return;
     }
 
@@ -56,16 +56,28 @@ export default function AskPage() {
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
-    // Generate AI response by calling backend
+    // Generate AI response — Node backend first, Python backend as fallback
     let aiResponse = "";
     try {
-      const res = await axios.post(`${PYTHON_API_URL}/api/ask`, {
-        question: userMessage,
-      });
-      aiResponse = res.data.answer;
-    } catch (error) {
-      console.error("Error communicating with AI engine:", error);
-      aiResponse = "[ANSWER]\nI'm sorry, I couldn't process your request at this time.\n\n[EXPLANATION]\nThere was an error communicating with the backend API.\n\n[SOURCE BASIS]\n- System Error";
+      const res = await axios.post(
+        `${NODE_API_URL}/api/chat/ask`,
+        { message: userMessage, mode: "general" },
+        { timeout: 30000 },
+      );
+      aiResponse = res.data.response;
+    } catch (nodeError) {
+      console.warn("Node AI backend unavailable, trying Python fallback:", nodeError);
+      try {
+        const res = await axios.post(
+          `${PYTHON_API_URL}/api/chat/ask`,
+          { message: userMessage, mode: "general" },
+          { timeout: 30000 },
+        );
+        aiResponse = res.data.response;
+      } catch (error) {
+        console.error("Error communicating with AI engine:", error);
+        aiResponse = "Sorry, I couldn't reach the AI engine. Please try again.";
+      }
     }
 
     const aiMsg: Message = {
@@ -149,7 +161,7 @@ export default function AskPage() {
             onModelChange={setSelectedModel}
             isLightMode={isLightMode}
             onToggleTheme={() => {
-              setMode(isLightMode ? 'default' : 'light');
+              setMode(isLightMode ? 'dark' : 'light');
             }}
           />
 
