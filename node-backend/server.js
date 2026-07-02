@@ -44,6 +44,7 @@ const app = express();
 // Configure CORS — FRONTEND_URL env var supports any Vercel/custom domain
 const productionOrigins = [
     'https://infinity-frontend.vercel.app',
+    'https://one-3pr6.vercel.app',
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:5174',

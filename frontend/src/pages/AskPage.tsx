@@ -6,8 +6,7 @@ import type { Chat, Message } from "@/components/chat/mockChatData";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChatHistory } from "@/hooks/useChatHistory";
-import axios from "axios";
-import { NODE_API_URL, PYTHON_API_URL } from "@/config";
+import { askGeneralChat } from "@/utils/chatApi";
 
 export default function AskPage() {
   const { isLightMode, setMode } = useTheme();
@@ -50,27 +49,7 @@ export default function AskPage() {
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
-    let aiResponse = "";
-    try {
-      const res = await axios.post(
-        `${NODE_API_URL}/api/chat/ask`,
-        { message: userMessage, mode: "general" },
-        { timeout: 30000 },
-      );
-      aiResponse = res.data.response;
-    } catch (nodeError) {
-      console.warn("Node AI backend unavailable, trying Python fallback:", nodeError);
-      try {
-        const res = await axios.post(
-          `${PYTHON_API_URL}/api/chat/ask`,
-          { message: userMessage, mode: "general" },
-          { timeout: 30000 },
-        );
-        aiResponse = res.data.response;
-      } catch {
-        aiResponse = "Sorry, I couldn't reach the AI engine. Please try again.";
-      }
-    }
+    const aiResponse = await askGeneralChat(userMessage);
 
     const aiMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: aiResponse };
     setMessages((prev) => [...prev, aiMsg]);

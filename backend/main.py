@@ -109,6 +109,7 @@ cors_origins = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
     "https://infinity-frontend.vercel.app",
+    "https://one-3pr6.vercel.app",
 ]
 _frontend_url = os.getenv("FRONTEND_URL", "").strip()
 if _frontend_url and _frontend_url not in cors_origins:
