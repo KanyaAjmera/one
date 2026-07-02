@@ -78,14 +78,22 @@ function GlobalProfileButton({ onOpenAuth }: { onOpenAuth: () => void }) {
     <div className="fixed top-6 right-6 z-50 flex gap-2">
       <div
         onClick={toggleTheme}
-        className={`cursor-pointer hover:scale-110 transition-all duration-300 p-3 rounded-full border shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center justify-center ${isLightMode ? 'bg-white/90 border-gray-200 shadow-md text-gray-800' : 'bg-black/40 backdrop-blur-md border-white/20 text-white'}`}
+        className={`cursor-pointer hover:scale-110 transition-all duration-300 p-3 rounded-full border shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center justify-center ${
+          isLightMode 
+            ? 'bg-white/90 border-gray-200 shadow-md text-[#111111] hover:text-purple-600 hover:border-purple-300' 
+            : 'bg-black/40 backdrop-blur-md border-white/20 text-white'
+        }`}
         title="Toggle Theme"
       >
         {isLightMode ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
       </div>
       <div
         onClick={handleProfileClick}
-        className={`cursor-pointer hover:scale-110 transition-all duration-300 p-3 rounded-full border shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center justify-center ${isLightMode ? 'bg-white/90 border-gray-200 shadow-md text-gray-800' : 'bg-black/40 backdrop-blur-md border-white/20 text-white'}`}
+        className={`cursor-pointer hover:scale-110 transition-all duration-300 p-3 rounded-full border shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center justify-center ${
+          isLightMode 
+            ? 'bg-white/90 border-gray-200 shadow-md text-[#111111] hover:text-purple-600 hover:border-purple-300' 
+            : 'bg-black/40 backdrop-blur-md border-white/20 text-white'
+        }`}
         title="Profile"
       >
         <User className="w-6 h-6" />

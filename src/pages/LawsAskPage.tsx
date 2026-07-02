@@ -73,7 +73,7 @@ export default function LawsAskPage() {
     }
 
     if (lowerMsg.includes("dark mode") || lowerMsg.includes("make it dark")) {
-      setMode("default");
+      setMode("dark");
       return;
     }
 
@@ -178,7 +178,7 @@ export default function LawsAskPage() {
             onModelChange={setSelectedModel}
             isLightMode={isLightMode}
             onToggleTheme={() => {
-              setMode(isLightMode ? 'default' : 'light');
+              setMode(isLightMode ? 'dark' : 'light');
             }}
           />
 

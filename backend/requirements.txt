@@ -1,10 +1,9 @@
 fastapi
 uvicorn
-google-generativeai
 pydantic
 python-dotenv
 requests
 python-multipart
 pymongo
 motor
-rapidfuzz
+pillow

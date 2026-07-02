@@ -6,12 +6,14 @@ interface TubesBackgroundProps {
   children?: React.ReactNode;
   className?: string;
   enableClickInteraction?: boolean;
+  isLightMode?: boolean;
 }
 
 export function TubesBackground({ 
   children, 
   className,
-  enableClickInteraction = true 
+  enableClickInteraction = true,
+  isLightMode = false
 }: TubesBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -34,16 +36,22 @@ export function TubesBackground({
         if (!mounted) return;
 
         const app = TubesCursor(canvasRef.current, {
+          bloom: !isLightMode,
           tubes: {
-            colors: ["#f967fb", "#53bc28", "#6958d5"],
+            colors: isLightMode ? ["#9333ea", "#a855f7", "#6958d5"] : ["#f967fb", "#53bc28", "#6958d5"],
             lights: {
-              intensity: 200,
-              colors: ["#83f36e", "#fe8a2e", "#ff008a", "#60aed5"]
+              intensity: isLightMode ? 80 : 200,
+              colors: isLightMode ? ["#a855f7", "#c084fc", "#e879f9", "#3b82f6"] : ["#83f36e", "#fe8a2e", "#ff008a", "#60aed5"]
             }
           }
         });
 
+        if (isLightMode && app?.three?.renderer) {
+          app.three.renderer.setClearColor(0xffffff, 0);
+        }
+
         tubesRef.current = app;
+        (window as any).tubesApp = app;
 
 
         // Handle resize if the library doesn't automatically
@@ -126,7 +134,7 @@ export function TubesBackground({
       mounted = false;
       if (cleanup) cleanup();
     };
-  }, []);
+  }, [isLightMode]);
 
   const handleClick = () => {
     if (!enableClickInteraction || !tubesRef.current) return;

@@ -17,7 +17,7 @@ export default function PptCreator() {
     setLoading(true);
     setMessage("Generating content (this may take a moment)...");
     try {
-      const baseUrl = import.meta.env.VITE_PYTHON_API_URL || '';
+      const baseUrl = import.meta.env.VITE_PYTHON_API_URL || 'http://127.0.0.1:8000';
       const res = await fetch(`${baseUrl}/api/generate_ppt`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

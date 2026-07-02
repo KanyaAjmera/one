@@ -1,66 +1,59 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/User.js';
-import dotenv from 'dotenv';
 
-dotenv.config();
+// Strategy is registered lazily on first use so env vars are fully loaded
+function ensureStrategy() {
+    if (passport._strategies['google']) return;
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID || 'your-client-id',
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'your-client-secret',
-    callbackURL: process.env.GOOGLE_CALLBACK_URL || "/api/auth/google/callback",
-    proxy: true
-  },
-  async (accessToken, refreshToken, profile, done) => {
-    try {
-        const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
-        
-        let user;
-        if (email) {
-            user = await User.findOne({ $or: [{ googleId: profile.id }, { email }] });
-        } else {
-            user = await User.findOne({ googleId: profile.id });
-        }
+    const callbackURL = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5001/api/auth/google/callback';
+    console.log(`[Passport] Registering Google strategy — callback: ${callbackURL}`);
 
-        if (user) {
-            // Link googleId if they signed up with email previously but now use Google
-            if (!user.googleId) {
-                user.googleId = profile.id;
-                if (!user.name) {
-                    user.name = profile.displayName || (profile.name ? profile.name.givenName : null) || (email ? email.split('@')[0] : 'Unknown User');
+    passport.use(new GoogleStrategy({
+        clientID: process.env.GOOGLE_CLIENT_ID || '',
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+        callbackURL,
+        proxy: true,
+    },
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            const email = profile.emails?.[0]?.value ?? null;
+
+            let user = email
+                ? await User.findOne({ $or: [{ googleId: profile.id }, { email }] })
+                : await User.findOne({ googleId: profile.id });
+
+            if (user) {
+                if (!user.googleId) {
+                    user.googleId = profile.id;
+                    if (!user.name) user.name = profile.displayName || email?.split('@')[0] || 'User';
+                    await user.save();
                 }
-                await user.save();
+                return done(null, user);
             }
+
+            user = await User.create({
+                googleId: profile.id,
+                name: profile.displayName || email?.split('@')[0] || 'User',
+                email,
+            });
             return done(null, user);
+        } catch (err) {
+            return done(err, null);
         }
+    }));
+}
 
-        // If not, create new user
-        const fallbackName = profile.displayName || (profile.name ? profile.name.givenName : null) || (email ? email.split('@')[0] : 'Unknown User');
-        
-        user = await User.create({
-            googleId: profile.id,
-            name: fallbackName,
-            email: email, // Could be null if exact scopes aren't approved
-        });
-
-        return done(null, user);
-    } catch (error) {
-        return done(error, null);
-    }
-  }
-));
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
+passport.serializeUser((user, done) => done(null, user.id));
 
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await User.findById(id);
         done(null, user);
-    } catch (error) {
-        done(error, null);
+    } catch (err) {
+        done(err, null);
     }
 });
 
+export { ensureStrategy };
 export default passport;
