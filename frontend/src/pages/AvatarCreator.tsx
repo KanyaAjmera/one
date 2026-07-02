@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, Sparkles, Download, Shuffle, Image as ImageIcon } from 'lucide-react';
 import AnoAI from '@/components/ui/animated-shader-background';
 import { motion } from 'framer-motion';
+import { PYTHON_API_URL } from '@/config';
 
 export default function AvatarCreator() {
   const navigate = useNavigate();
@@ -36,8 +37,7 @@ export default function AvatarCreator() {
     try {
       // First model loading might be slow, so we alert the user
       // Using fetch instead of setting img.src directly so we can detect errors and show loading states cleanly
-      const baseUrl = import.meta.env.VITE_PYTHON_API_URL || '';
-      const response = await fetch(`${baseUrl}/api/generate_avatar?prompt=${encodeURIComponent(prompt)}&style=${encodeURIComponent(style)}`);
+      const response = await fetch(`${PYTHON_API_URL}/api/generate_avatar?prompt=${encodeURIComponent(prompt)}&style=${encodeURIComponent(style)}`);
       
       if (!response.ok) {
         let errorText = await response.text();

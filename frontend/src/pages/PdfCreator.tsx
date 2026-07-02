@@ -4,6 +4,7 @@ import { ArrowLeft, FileDown, Loader2, UploadCloud, X, Sparkles, Image as ImageI
 import AnoAI from '@/components/ui/animated-shader-background';
 import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
+import { PYTHON_API_URL } from '@/config';
 
 export default function PdfCreator() {
   const navigate = useNavigate();
@@ -51,8 +52,7 @@ export default function PdfCreator() {
     setLoading(true);
     setMessage("Generating content (this may take a moment)...");
     try {
-      const baseUrl = import.meta.env.VITE_PYTHON_API_URL || '';
-      const res = await fetch(`${baseUrl}/api/generate_pdf`, {
+      const res = await fetch(`${PYTHON_API_URL}/api/generate_pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic })

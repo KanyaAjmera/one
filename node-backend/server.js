@@ -45,6 +45,8 @@ const app = express();
 const productionOrigins = [
     'https://infinity-frontend.vercel.app',
     'https://one-3pr6.vercel.app',
+    'https://frontend-erljr3gmd-kanya-ajmeras-projects.vercel.app',
+    'https://frontend-delta-flame-orb84w9ki8.vercel.app',
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:5174',
